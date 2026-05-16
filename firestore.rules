@@ -1,0 +1,35 @@
+rules_version = '2';
+
+// PRODUCTION RULES.
+// /games is now read-only from the client. To add or edit games, write via
+// the Firebase console or temporarily relax these two `allow write` lines
+// back to `if request.auth != null;`, deploy, run the in-app seeder, then
+// re-tighten and re-deploy.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /games/{gameId} {
+      allow read: if request.auth != null;
+      allow write: if false; // tightened post-seed — write via Firebase console
+
+      match /guide/{doc} {
+        allow read: if request.auth != null;
+        allow write: if false; // tightened post-seed — write via Firebase console
+      }
+    }
+
+    match /users/{uid}/{path=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /requests/{id} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if false;
+    }
+
+    match /feedback/{id} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if false;
+    }
+  }
+}

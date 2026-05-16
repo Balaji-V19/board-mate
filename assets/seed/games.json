@@ -1,0 +1,835 @@
+[
+  {
+    "id": "catan",
+    "game": {
+      "name": "Catan",
+      "description": "Trade resources, build roads and settlements, and become the first to ten victory points on the island of Catan.",
+      "objective": "Be the first player to reach 10 victory points by building settlements, cities, and roads, or by holding special cards.",
+      "categories": ["Strategy", "Family"],
+      "minPlayers": 3,
+      "maxPlayers": 4,
+      "minMinutes": 60,
+      "maxMinutes": 120,
+      "difficulty": "Medium",
+      "ageRange": "10+",
+      "imageUrl": "https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?auto=format&fit=crop&w=900&q=80",
+      "rating": 4.7,
+      "popularity": 100
+    },
+    "guide": {
+      "components": [
+        {"name": "Hex tiles", "count": 19, "description": "Form the island"},
+        {"name": "Number tokens", "count": 18},
+        {"name": "Resource cards", "count": 95},
+        {"name": "Development cards", "count": 25},
+        {"name": "Settlements / cities / roads", "count": 96}
+      ],
+      "setupSteps": [
+        {"order": 1, "title": "Build the island", "body": "Arrange the 19 hex tiles randomly inside the frame. Place the sea frame pieces around the edge.", "tip": "For your first game, use the recommended layout in the rulebook so resources are balanced.", "images": [{"iconKey": "hex", "caption": "19 hexes form a flower-shaped island"}]},
+        {"order": 2, "title": "Place number tokens", "body": "Lay the round number tokens on the hexes in alphabetical order (A, B, C...). Skip the desert hex.", "checklist": ["19 hexes placed", "Number tokens placed clockwise", "Desert left empty"], "images": [{"iconKey": "token", "caption": "Number tokens go on hexes clockwise"}]},
+        {"order": 3, "title": "Place the robber", "body": "Set the robber pawn on the desert hex.", "images": [{"iconKey": "warning", "caption": "Robber starts on the desert"}]},
+        {"order": 4, "title": "Hand out player kits", "body": "Each player takes 5 settlements, 4 cities, 15 roads, and one building costs card in their color.", "images": [{"iconKey": "settlement", "caption": "Per-player pieces in your color"}]},
+        {"order": 5, "title": "Initial placement", "body": "In player order, each player places one settlement and one connecting road. Then in reverse order, each player places a second settlement and road.", "tip": "Pick spots that touch three different resources for the strongest start.", "images": [{"iconKey": "settlement", "caption": "Place a settlement"}, {"iconKey": "road", "caption": "Connect a road"}]},
+        {"order": 6, "title": "Collect starting resources", "body": "For the second settlement, take one resource card for each adjacent hex.", "checklist": ["Two settlements per player", "Two roads per player", "Starting cards collected"], "images": [{"iconKey": "cards", "caption": "Take cards for the 3 adjacent hexes"}]}
+      ],
+      "howToPlaySteps": [
+        {
+          "order": 1,
+          "title": "What happens on a turn",
+          "body": "A turn has three phases: roll for resources, trade, and build. You may build at any point during your turn after rolling.",
+          "images": [{"iconKey": "dice", "caption": "Roll"}, {"iconKey": "hand", "caption": "Trade"}, {"iconKey": "house", "caption": "Build"}],
+          "rules": [
+            {"number": 1, "title": "Roll the dice", "body": "Total the two dice. Every player gets resources from hexes with that number that touch their settlements or cities."},
+            {"number": 2, "title": "Trade", "body": "Trade resources with other players or with the bank (4:1, or 3:1 / 2:1 at ports)."},
+            {"number": 3, "title": "Build", "body": "Spend resources to build roads, settlements, cities, or buy development cards."}
+          ]
+        },
+        {
+          "order": 2,
+          "title": "Rolling a 7",
+          "body": "Rolling a 7 triggers the robber. Players with more than 7 cards must discard half. The roller moves the robber to a new hex and steals one card from a player touching it.",
+          "warning": "If you sit on a pile of cards, expect to lose half of them when someone rolls a 7.",
+          "images": [{"iconKey": "warning", "caption": "Roll a 7 → robber moves"}]
+        }
+      ],
+      "turnFlow": [
+        {"order": 1, "name": "Roll dice", "description": "Distribute resources based on the rolled number.", "iconKey": "dice", "colorKey": "primary"},
+        {"order": 2, "name": "Trade", "description": "Trade with other players or with the bank.", "iconKey": "swap", "colorKey": "info"},
+        {"order": 3, "name": "Build", "description": "Spend resources to expand your network or buy a development card.", "iconKey": "hammer", "colorKey": "success"}
+      ],
+      "scoring": {
+        "summary": "Victory points are earned by building and by holding special cards. First to 10 on your turn wins.",
+        "points": [
+          "Settlement: 1 VP",
+          "City: 2 VP",
+          "Longest Road (5+ roads): 2 VP",
+          "Largest Army (3+ knights): 2 VP",
+          "Victory Point development cards: 1 VP each"
+        ],
+        "tieBreaker": "The current player declares 10+ VP first, so there is no tie.",
+        "gameEnd": "The game ends the moment a player declares 10 or more victory points at the start of their turn."
+      },
+      "faq": [
+        {"question": "Can I count hidden VP cards toward winning?", "answer": "Yes, but you only reveal them on the turn you would win."},
+        {"question": "Can two settlements be next to each other?", "answer": "No. Settlements must be at least two roads apart."}
+      ],
+      "commonMistakes": [
+        {"title": "Forgetting to collect on opponents' rolls", "body": "Every player collects on every roll, not just the active player."},
+        {"title": "Trading on someone else's turn", "body": "You can only trade with the active player, not with other players directly."}
+      ],
+      "quickReference": {
+        "sections": [
+          {"title": "Building costs", "items": ["Road: 1 wood, 1 brick", "Settlement: 1 wood, 1 brick, 1 sheep, 1 wheat", "City: 2 wheat, 3 ore", "Development card: 1 sheep, 1 wheat, 1 ore"]},
+          {"title": "Special cards", "items": ["Longest Road (5+ continuous roads): 2 VP", "Largest Army (3+ revealed knights): 2 VP"]},
+          {"title": "Trading", "items": ["4:1 with the bank", "3:1 at a generic port", "2:1 at a specific resource port"]}
+        ]
+      }
+    }
+  },
+  {
+    "id": "ticket-to-ride",
+    "game": {
+      "name": "Ticket to Ride",
+      "description": "Collect train cards and claim railway routes across the map to connect cities on your tickets.",
+      "objective": "Score the most points by claiming routes, completing destination tickets, and holding the longest continuous train line.",
+      "categories": ["Family", "Strategy"],
+      "minPlayers": 2,
+      "maxPlayers": 5,
+      "minMinutes": 30,
+      "maxMinutes": 60,
+      "difficulty": "Easy",
+      "ageRange": "8+",
+      "imageUrl": "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=900&q=80",
+      "rating": 4.6,
+      "popularity": 95
+    },
+    "guide": {
+      "components": [
+        {"name": "Map board", "count": 1},
+        {"name": "Train car cards", "count": 110},
+        {"name": "Destination tickets", "count": 30},
+        {"name": "Plastic trains per player", "count": 45}
+      ],
+      "setupSteps": [
+        {"order": 1, "title": "Place the board", "body": "Unfold the board where everyone can reach the routes you plan to claim.", "images": [{"iconKey": "map", "caption": "Map at the table center"}]},
+        {"order": 2, "title": "Shuffle and deal trains", "body": "Each player picks a color and takes 45 train pieces and the matching scoring marker. Place markers on 0.", "checklist": ["Map placed", "Trains distributed", "Score markers on 0"], "images": [{"iconKey": "train", "caption": "45 trains per player"}]},
+        {"order": 3, "title": "Deal train cards", "body": "Shuffle the train deck, deal 4 cards to each player, and reveal 5 face-up next to the deck.", "images": [{"iconKey": "cards", "caption": "Start with 4 train cards; 5 face-up market"}]},
+        {"order": 4, "title": "Deal destination tickets", "body": "Give each player 3 destination tickets. They must keep at least 2.", "tip": "Tickets that overlap in geography are easier to complete together.", "warning": "Failing to complete a kept ticket subtracts its points at the end.", "images": [{"iconKey": "target", "caption": "Keep 2-3 tickets"}]}
+      ],
+      "howToPlaySteps": [
+        {
+          "order": 1,
+          "title": "Choose one action per turn",
+          "body": "On your turn, do exactly one of these three actions.",
+          "images": [{"iconKey": "cards", "caption": "Draw"}, {"iconKey": "route", "caption": "Claim"}, {"iconKey": "target", "caption": "Tickets"}],
+          "rules": [
+            {"number": 1, "title": "Draw train cards", "body": "Take two train cards. Face-up locomotives count as two cards, so you only get one."},
+            {"number": 2, "title": "Claim a route", "body": "Spend train cards matching the route's color and length to place trains on it."},
+            {"number": 3, "title": "Draw destination tickets", "body": "Draw 3 new tickets and keep at least 1."}
+          ]
+        }
+      ],
+      "turnFlow": [
+        {"order": 1, "name": "Pick an action", "description": "Draw, claim, or take tickets — only one per turn."},
+        {"order": 2, "name": "Resolve effect", "description": "Score immediately if you claimed a route."},
+        {"order": 3, "name": "End turn", "description": "Play passes to the left."}
+      ],
+      "scoring": {
+        "summary": "Score points for routes you claim, completed tickets, and the longest continuous track.",
+        "points": [
+          "1 train: 1 pt",
+          "2 trains: 2 pts",
+          "3 trains: 4 pts",
+          "4 trains: 7 pts",
+          "5 trains: 10 pts",
+          "6 trains: 15 pts",
+          "Longest continuous path: 10 pts"
+        ],
+        "gameEnd": "When a player ends their turn with 2 or fewer trains left, every player takes one final turn."
+      },
+      "faq": [
+        {"question": "Can I split my hand to claim a route?", "answer": "No, you must use one valid set of matching cards in a single action."}
+      ],
+      "commonMistakes": [
+        {"title": "Hoarding cards too long", "body": "Other players can claim the routes you need first."}
+      ],
+      "quickReference": {
+        "sections": [
+          {"title": "Turn actions", "items": ["Draw 2 train cards", "Claim a route", "Draw 3 destination tickets (keep 1+)"]},
+          {"title": "Route lengths", "items": ["1: 1 pt", "2: 2 pts", "3: 4 pts", "4: 7 pts", "5: 10 pts", "6: 15 pts"]}
+        ]
+      }
+    }
+  },
+  {
+    "id": "codenames",
+    "game": {
+      "name": "Codenames",
+      "description": "Two teams race to identify their secret agents using one-word clues from their spymaster.",
+      "objective": "Find all your team's agents from a 5x5 grid before the other team — and avoid the assassin.",
+      "categories": ["Party", "Word"],
+      "minPlayers": 4,
+      "maxPlayers": 8,
+      "minMinutes": 15,
+      "maxMinutes": 30,
+      "difficulty": "Easy",
+      "ageRange": "14+",
+      "imageUrl": "https://images.unsplash.com/photo-1606220588911-5117e04b71e7?auto=format&fit=crop&w=900&q=80",
+      "rating": 4.6,
+      "popularity": 88
+    },
+    "guide": {
+      "components": [
+        {"name": "Codename cards", "count": 400},
+        {"name": "Key cards", "count": 40},
+        {"name": "Agent cards (red/blue)", "count": 18},
+        {"name": "Bystander cards", "count": 7},
+        {"name": "Assassin card", "count": 1}
+      ],
+      "setupSteps": [
+        {"order": 1, "title": "Form two teams", "body": "Split into red and blue teams of roughly equal size. Each team picks one spymaster.", "checklist": ["Two teams formed", "Each team has a spymaster"], "images": [{"iconKey": "team", "caption": "Two teams, one spymaster each"}]},
+        {"order": 2, "title": "Lay out the words", "body": "Shuffle the word cards and place 25 face up in a 5x5 grid.", "images": [{"iconKey": "grid", "caption": "5×5 grid of words"}]},
+        {"order": 3, "title": "Pick a key card", "body": "Spymasters draw a random key card and place it on the stand. Both spymasters keep the key card hidden from their team.", "warning": "Do not let the team see the key card or your reactions to it.", "images": [{"iconKey": "eye", "caption": "Key card stays hidden from teammates"}]}
+      ],
+      "howToPlaySteps": [
+        {
+          "order": 1,
+          "title": "Spymaster gives a clue",
+          "body": "On your team's turn, the spymaster says a one-word clue and a number — for example: \"Beach 2\". The clue must relate to that many of your team's words.",
+          "images": [{"iconKey": "speech", "caption": "One word + a number"}],
+          "rules": [
+            {"number": 1, "title": "One word, one number", "body": "Clues must be one word and a number. No proper nouns from the grid."},
+            {"number": 2, "title": "Touch a card to guess", "body": "Teammates touch a card to lock in a guess. The spymaster reveals what it is."},
+            {"number": 3, "title": "Stop or continue", "body": "After each correct guess, the team may guess again up to one more than the number. End turn anytime."}
+          ]
+        }
+      ],
+      "turnFlow": [
+        {"order": 1, "name": "Give clue", "description": "Spymaster announces a one-word clue and a number."},
+        {"order": 2, "name": "Guess", "description": "Teammates discuss and tap cards one at a time."},
+        {"order": 3, "name": "Resolve", "description": "Correct cards are covered with the matching agent. Wrong guesses end the turn."}
+      ],
+      "scoring": {
+        "summary": "Find all your agents first to win. Touching the assassin loses the game instantly.",
+        "points": [
+          "Each correct guess covers one agent",
+          "First team to cover all their agents wins",
+          "Touching the assassin loses instantly"
+        ]
+      },
+      "faq": [
+        {"question": "Can the clue rhyme with a word on the table?", "answer": "House rule, but the standard rules say no."}
+      ],
+      "commonMistakes": [
+        {"title": "Going for too many words", "body": "Big numbers feel impressive but a vague clue can hit the assassin."}
+      ],
+      "quickReference": {
+        "sections": [
+          {"title": "Clue rules", "items": ["One word, one number", "No words on the grid", "No proper nouns or rhymes (standard)"]},
+          {"title": "End game", "items": ["All your agents found → you win", "Assassin touched → you lose"]}
+        ]
+      }
+    }
+  },
+  {
+    "id": "pandemic",
+    "game": {
+      "name": "Pandemic",
+      "description": "Work together as a global response team to treat outbreaks and discover cures before the world is overwhelmed.",
+      "objective": "Discover cures for all four diseases before the player deck runs out or eight outbreaks occur.",
+      "categories": ["Co-op", "Strategy"],
+      "minPlayers": 2,
+      "maxPlayers": 4,
+      "minMinutes": 45,
+      "maxMinutes": 60,
+      "difficulty": "Medium",
+      "ageRange": "10+",
+      "imageUrl": "https://images.unsplash.com/photo-1583912086283-83b6c3a17b5e?auto=format&fit=crop&w=900&q=80",
+      "rating": 4.7,
+      "popularity": 90
+    },
+    "guide": {
+      "components": [
+        {"name": "World map board", "count": 1},
+        {"name": "Role cards", "count": 7},
+        {"name": "Player cards", "count": 59},
+        {"name": "Infection cards", "count": 48},
+        {"name": "Disease cubes", "count": 96}
+      ],
+      "setupSteps": [
+        {"order": 1, "title": "Place the board", "body": "Set the world map in the middle of the table within reach of everyone.", "images": [{"iconKey": "map", "caption": "World map at the table"}]},
+        {"order": 2, "title": "Deal roles", "body": "Each player gets a random role card and pawn. Place all pawns on Atlanta.", "checklist": ["Pawns on Atlanta", "Research station on Atlanta", "Players have roles"], "images": [{"iconKey": "players", "caption": "Each player has a unique role"}]},
+        {"order": 3, "title": "Build infection deck", "body": "Shuffle the infection cards. Place 3 sets of 3 cards on cities to seed initial outbreaks following the rulebook (3 cubes, 2 cubes, 1 cube).", "images": [{"iconKey": "cube", "caption": "Disease cubes seed the map"}]},
+        {"order": 4, "title": "Build player deck", "body": "Shuffle the player cards. Deal a starting hand based on player count (4 cards for 2P, 3 for 3P, 2 for 4P). Then split deck into piles and shuffle in epidemic cards.", "tip": "More epidemic cards = harder game. 4 is standard, 5 or 6 for veterans.", "images": [{"iconKey": "deck", "caption": "Shuffle in epidemic cards"}]}
+      ],
+      "howToPlaySteps": [
+        {
+          "order": 1,
+          "title": "On your turn, do 4 actions",
+          "body": "Pick from move, fly, build research station, treat disease, share knowledge, or discover a cure.",
+          "images": [{"iconKey": "turn", "caption": "Up to 4 actions per turn"}],
+          "rules": [
+            {"number": 1, "title": "Take 4 actions", "body": "Mix and match the available actions as you wish."},
+            {"number": 2, "title": "Draw 2 player cards", "body": "If you draw an Epidemic, resolve it immediately."},
+            {"number": 3, "title": "Infect cities", "body": "Flip the top X infection cards (X = current infection rate) and add a cube to each city."}
+          ]
+        }
+      ],
+      "turnFlow": [
+        {"order": 1, "name": "4 actions", "description": "Take any 4 actions in any order."},
+        {"order": 2, "name": "Draw player cards", "description": "Draw 2 player cards. Resolve epidemics immediately."},
+        {"order": 3, "name": "Infect cities", "description": "Infect cities equal to the current infection rate."}
+      ],
+      "scoring": {
+        "summary": "There is no score. The team wins by discovering all four cures.",
+        "gameEnd": "You lose if 8 outbreaks happen, you run out of disease cubes of a color, or the player deck runs out before all cures are found."
+      },
+      "faq": [
+        {"question": "Do we have to eradicate diseases to win?", "answer": "No, you only need to cure them. Eradication is a strong bonus."}
+      ],
+      "commonMistakes": [
+        {"title": "Forgetting outbreaks chain", "body": "An outbreak in a city causes infections in neighbors, which can chain further."}
+      ],
+      "quickReference": {
+        "sections": [
+          {"title": "Actions", "items": ["Drive/ferry to a neighbor", "Direct flight (discard city card)", "Charter flight (discard current city card)", "Shuttle flight between research stations", "Build research station", "Treat disease", "Share knowledge", "Discover a cure (5 matching cards at a station)"]},
+          {"title": "Losing conditions", "items": ["8 outbreaks", "Out of disease cubes for a color", "Player deck empty"]}
+        ]
+      }
+    }
+  },
+  {
+    "id": "wingspan",
+    "game": {
+      "name": "Wingspan",
+      "description": "Attract birds to your wildlife reserves in this engine-building card game inspired by nature.",
+      "objective": "Score the most points by laying eggs, gaining food, drawing cards, and triggering end-of-round goals.",
+      "categories": ["Strategy", "Family"],
+      "minPlayers": 1,
+      "maxPlayers": 5,
+      "minMinutes": 40,
+      "maxMinutes": 70,
+      "difficulty": "Medium",
+      "ageRange": "10+",
+      "imageUrl": "https://images.unsplash.com/photo-1518709268805-4e9042af2176?auto=format&fit=crop&w=900&q=80",
+      "rating": 4.8,
+      "popularity": 92
+    },
+    "guide": {
+      "components": [
+        {"name": "Player mats", "count": 5},
+        {"name": "Bird cards", "count": 170},
+        {"name": "Bonus cards", "count": 26},
+        {"name": "Food tokens (dice)", "count": 5},
+        {"name": "Egg miniatures", "count": 75}
+      ],
+      "setupSteps": [
+        {"order": 1, "title": "Give each player a mat", "body": "Place a player mat in front of each player. The three habitats run from top to bottom.", "images": [{"iconKey": "board", "caption": "Player mat with 3 habitats"}]},
+        {"order": 2, "title": "Deal starting hands", "body": "Deal 5 bird cards and 2 bonus cards to each player. Players keep some and discard the rest, then take a matching pool of starting food.", "images": [{"iconKey": "bird", "caption": "5 birds + 2 bonus cards"}]},
+        {"order": 3, "title": "Fill the bird tray", "body": "Reveal 3 bird cards face up next to the deck. Place the food dice in the bird feeder dome and roll them in.", "images": [{"iconKey": "dice", "caption": "Food dice in the feeder dome"}]}
+      ],
+      "howToPlaySteps": [
+        {
+          "order": 1,
+          "title": "Take one action per turn",
+          "body": "On your turn pick one of the four habitats. Carry out its action, then trigger any powers in that habitat from right to left.",
+          "images": [{"iconKey": "bird", "caption": "Play a bird"}, {"iconKey": "wood", "caption": "Gain food"}, {"iconKey": "token", "caption": "Lay eggs"}, {"iconKey": "cards", "caption": "Draw birds"}],
+          "rules": [
+            {"number": 1, "title": "Play a bird", "body": "Spend food and eggs to place a bird in the matching habitat."},
+            {"number": 2, "title": "Gain food", "body": "Take dice from the bird feeder, then trigger forest powers."},
+            {"number": 3, "title": "Lay eggs", "body": "Add eggs to your birds, then trigger grassland powers."},
+            {"number": 4, "title": "Draw bird cards", "body": "Take face-up or top of deck, then trigger wetland powers."}
+          ]
+        }
+      ],
+      "turnFlow": [
+        {"order": 1, "name": "Pick a habitat", "description": "Choose forest, grassland, or wetland — or play a bird."},
+        {"order": 2, "name": "Take the action", "description": "Gain the listed resource based on the habitat's cubes."},
+        {"order": 3, "name": "Trigger powers", "description": "Resolve bird powers in that row from right to left."}
+      ],
+      "scoring": {
+        "summary": "Add points from birds, bonus cards, end-of-round goals, eggs, food cached on birds, and tucked cards.",
+        "points": [
+          "Bird point values",
+          "Bonus cards",
+          "End-of-round goal placements",
+          "Eggs (1 pt each)",
+          "Food cached on birds (1 pt each)",
+          "Tucked cards (1 pt each)"
+        ]
+      },
+      "faq": [
+        {"question": "Can I play more than one bird per turn?", "answer": "Only with bird powers that explicitly allow it."}
+      ],
+      "commonMistakes": [
+        {"title": "Skipping bird powers", "body": "Always trigger right-to-left powers in the row you played in."}
+      ],
+      "quickReference": {
+        "sections": [
+          {"title": "Habitat actions", "items": ["Forest: gain food", "Grassland: lay eggs", "Wetland: draw bird cards", "Play a bird (top action box)"]},
+          {"title": "End-of-round goal scoring", "items": ["1st: 5 pts (2P) / 5/2/1 (3-4P)"]}
+        ]
+      }
+    }
+  },
+  {
+    "id": "chess",
+    "game": {
+      "name": "Chess",
+      "description": "The classic two-player strategy game of pure skill on a 64-square board.",
+      "objective": "Checkmate the opponent's king — put it under attack with no legal escape.",
+      "categories": ["Strategy"],
+      "minPlayers": 2,
+      "maxPlayers": 2,
+      "minMinutes": 10,
+      "maxMinutes": 90,
+      "difficulty": "Hard",
+      "ageRange": "8+",
+      "imageUrl": "https://images.unsplash.com/photo-1529699211952-734e80c4d42b?auto=format&fit=crop&w=900&q=80",
+      "rating": 4.9,
+      "popularity": 99
+    },
+    "guide": {
+      "components": [
+        {"name": "Chess board (8x8)", "count": 1},
+        {"name": "Pieces per player", "count": 16, "description": "1 king, 1 queen, 2 rooks, 2 bishops, 2 knights, 8 pawns"}
+      ],
+      "setupSteps": [
+        {"order": 1, "title": "Orient the board", "body": "Each player should have a light square on their bottom-right corner.", "images": [{"iconKey": "grid", "caption": "8×8 board, light square bottom-right"}]},
+        {"order": 2, "title": "Place the pieces", "body": "Pawns go on the second rank. Rooks at the corners, then knights, then bishops, then queen on her color, king on the last square.", "checklist": ["Light square bottom-right", "Queens on their own color", "Pawns on the second rank"], "images": [{"iconKey": "king", "caption": "King"}, {"iconKey": "queen", "caption": "Queen"}, {"iconKey": "rook", "caption": "Rook"}, {"iconKey": "knight", "caption": "Knight"}]}
+      ],
+      "howToPlaySteps": [
+        {
+          "order": 1,
+          "title": "How pieces move",
+          "body": "Each piece has its own movement rule. You can only land on empty squares or capture an opposing piece.",
+          "images": [{"iconKey": "pawn", "caption": "Pawn"}, {"iconKey": "knight", "caption": "Knight"}, {"iconKey": "rook", "caption": "Rook"}, {"iconKey": "queen", "caption": "Queen"}],
+          "rules": [
+            {"number": 1, "title": "Pawn", "body": "Moves forward 1 (or 2 from its starting square). Captures diagonally."},
+            {"number": 2, "title": "Knight", "body": "L-shape: 2 squares one direction then 1 perpendicular. Jumps over pieces."},
+            {"number": 3, "title": "Bishop / Rook / Queen", "body": "Bishop: diagonals. Rook: ranks and files. Queen: any straight line."},
+            {"number": 4, "title": "King", "body": "Moves one square in any direction. Cannot move into check."}
+          ]
+        },
+        {
+          "order": 2,
+          "title": "Special moves",
+          "body": "Castling, en passant, and promotion add depth to the basic moves.",
+          "warning": "You cannot castle through or out of check.",
+          "images": [{"iconKey": "castle", "caption": "Castling"}, {"iconKey": "star", "caption": "Pawn promotion"}]
+        }
+      ],
+      "turnFlow": [
+        {"order": 1, "name": "Plan your move", "description": "Look for threats against your king first, then yours against theirs."},
+        {"order": 2, "name": "Move one piece", "description": "Make exactly one legal move, capturing if you wish."},
+        {"order": 3, "name": "Press the clock (optional)", "description": "If using a clock, press it to end your turn."}
+      ],
+      "scoring": {
+        "summary": "There is no score. The game ends in checkmate, stalemate, resignation, or a draw.",
+        "gameEnd": "Checkmate ends the game. Stalemate, threefold repetition, the 50-move rule, or insufficient material end in a draw."
+      },
+      "faq": [
+        {"question": "Can a pawn promote to any piece?", "answer": "Yes, including a second queen. Most often promoted to queen."}
+      ],
+      "commonMistakes": [
+        {"title": "Ignoring development", "body": "Move several pieces in the opening rather than the same piece twice."}
+      ],
+      "quickReference": {
+        "sections": [
+          {"title": "Piece values (rough)", "items": ["Pawn: 1", "Knight/Bishop: 3", "Rook: 5", "Queen: 9", "King: priceless"]},
+          {"title": "Endings", "items": ["Checkmate", "Stalemate (draw)", "Resignation", "Threefold repetition (draw)"]}
+        ]
+      }
+    }
+  },
+  {
+    "id": "carcassonne",
+    "game": {
+      "name": "Carcassonne",
+      "description": "Draw and place landscape tiles to build a medieval countryside, then claim roads, cities, and fields with your meeples.",
+      "objective": "Score the most points by completing roads, cities, monasteries, and farms.",
+      "categories": ["Family", "Strategy"],
+      "minPlayers": 2,
+      "maxPlayers": 5,
+      "minMinutes": 30,
+      "maxMinutes": 45,
+      "difficulty": "Easy",
+      "ageRange": "8+",
+      "imageUrl": "https://images.unsplash.com/photo-1606503153255-59d8b8b2a4f5?auto=format&fit=crop&w=900&q=80",
+      "rating": 4.6,
+      "popularity": 86
+    },
+    "guide": {
+      "components": [
+        {"name": "Land tiles", "count": 72, "description": "Includes one start tile with a dark back"},
+        {"name": "Meeples per player", "count": 7},
+        {"name": "Scoring board", "count": 1}
+      ],
+      "setupSteps": [
+        {"order": 1, "title": "Place the start tile", "body": "Put the dark-backed start tile in the middle of the table. All other tiles will branch from here.", "images": [{"iconKey": "tile", "caption": "Start tile in the centre"}]},
+        {"order": 2, "title": "Shuffle the tile pile", "body": "Stack the remaining tiles face down in a few piles within easy reach.", "images": [{"iconKey": "deck", "caption": "Tile draw pile, face down"}]},
+        {"order": 3, "title": "Hand out meeples", "body": "Each player takes 7 meeples in one color. One meeple goes on the 0 of the scoring board.", "checklist": ["Start tile placed", "Tiles shuffled", "Each player has 7 meeples"], "images": [{"iconKey": "meeple", "caption": "7 meeples per player"}]}
+      ],
+      "howToPlaySteps": [
+        {
+          "order": 1,
+          "title": "Three steps on your turn",
+          "body": "Draw a tile, place it so edges match, then optionally place a meeple on it.",
+          "images": [{"iconKey": "tile", "caption": "Draw"}, {"iconKey": "route", "caption": "Place"}, {"iconKey": "meeple", "caption": "Claim"}],
+          "rules": [
+            {"number": 1, "title": "Draw a tile", "body": "Take one tile from a pile and reveal it to everyone."},
+            {"number": 2, "title": "Place it legally", "body": "The tile must touch at least one existing tile and match all shared edges."},
+            {"number": 3, "title": "Place a meeple (optional)", "body": "Put one of your meeples on the tile you just placed — as a knight, robber, monk, or farmer. The feature must be unclaimed."}
+          ]
+        },
+        {
+          "order": 2,
+          "title": "Score completed features",
+          "body": "Roads close when both ends are capped. Cities close when fully walled. Monasteries score when surrounded by 8 tiles.",
+          "warning": "Once a feature is scored, take your meeple back. Farmers stay on the board until the very end of the game.",
+          "images": [{"iconKey": "check", "caption": "Closed feature → score now"}]
+        }
+      ],
+      "turnFlow": [
+        {"order": 1, "name": "Draw tile", "description": "Reveal one tile from a face-down pile.", "iconKey": "tile", "colorKey": "warning"},
+        {"order": 2, "name": "Place tile", "description": "Edges must match. The tile must touch an existing tile.", "iconKey": "route", "colorKey": "info"},
+        {"order": 3, "name": "Place meeple (optional)", "description": "Claim an unclaimed feature on the new tile.", "iconKey": "meeple", "colorKey": "success"}
+      ],
+      "scoring": {
+        "summary": "Score completed features mid-game; score uncompleted features and farms at the end.",
+        "points": [
+          "Road: 1 pt per tile",
+          "City: 2 pts per tile + 2 pts per pennant",
+          "Monastery: 9 pts when surrounded by 8 tiles (incl. its own)",
+          "Farm (end of game): 3 pts per completed city the farm feeds"
+        ],
+        "tieBreaker": "Ties stand — multiple winners is fine.",
+        "gameEnd": "The game ends when the last tile is placed. Then score all unfinished features and farms."
+      },
+      "faq": [
+        {"question": "Can I place a meeple on a feature an opponent already claimed?", "answer": "Not directly. But if two roads or cities merge later, both meeples score it."}
+      ],
+      "commonMistakes": [
+        {"title": "Forgetting to retrieve meeples", "body": "When a feature scores, your meeple comes back to your supply for reuse."}
+      ],
+      "quickReference": {
+        "sections": [
+          {"title": "Turn order", "items": ["1. Draw a tile", "2. Place it (edges must match)", "3. Optionally place a meeple"]},
+          {"title": "Scoring during play", "items": ["Road: 1 pt per tile", "City: 2 pts per tile + 2 per pennant", "Monastery (closed): 9 pts"]},
+          {"title": "End-of-game scoring", "items": ["Incomplete road/city: 1 pt per tile / 1 per pennant", "Monastery: 1 pt per surrounding tile", "Farmer: 3 pts per fed completed city"]}
+        ]
+      }
+    }
+  },
+  {
+    "id": "splendor",
+    "game": {
+      "name": "Splendor",
+      "description": "Collect gem tokens to buy prestige cards and become the most renowned Renaissance jewel merchant.",
+      "objective": "Be the first player to reach 15 prestige points.",
+      "categories": ["Strategy", "Cards"],
+      "minPlayers": 2,
+      "maxPlayers": 4,
+      "minMinutes": 30,
+      "maxMinutes": 30,
+      "difficulty": "Easy",
+      "ageRange": "10+",
+      "imageUrl": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=80",
+      "rating": 4.4,
+      "popularity": 80
+    },
+    "guide": {
+      "components": [
+        {"name": "Development cards", "count": 90, "description": "3 levels: green, yellow, blue backs"},
+        {"name": "Gem tokens", "count": 40, "description": "5 colors + 5 gold (joker)"},
+        {"name": "Noble tiles", "count": 10}
+      ],
+      "setupSteps": [
+        {"order": 1, "title": "Lay out the gem tokens", "body": "Stack the 5 gem colors and the gold tokens in piles within reach of all players.", "images": [{"iconKey": "gem", "caption": "5 gem colors + gold jokers"}]},
+        {"order": 2, "title": "Build the 3 card rows", "body": "Shuffle each development deck separately. Reveal 4 cards from each tier so there are 3 rows of 4 face up.", "images": [{"iconKey": "deck", "caption": "3 rows of 4 development cards"}]},
+        {"order": 3, "title": "Draw nobles", "body": "Reveal (player count + 1) noble tiles. The rest go back in the box.", "checklist": ["Gems laid out", "12 cards face-up across 3 tiers", "Noble tiles revealed"], "images": [{"iconKey": "king", "caption": "Player count + 1 nobles"}]}
+      ],
+      "howToPlaySteps": [
+        {
+          "order": 1,
+          "title": "Choose one action per turn",
+          "body": "On your turn do exactly one of: take gems, reserve a card, or buy a card. Then check if a noble visits you.",
+          "images": [{"iconKey": "gem", "caption": "Take gems"}, {"iconKey": "card", "caption": "Reserve / buy"}, {"iconKey": "king", "caption": "Noble visit"}],
+          "rules": [
+            {"number": 1, "title": "Take gems", "body": "Take 3 different-colored tokens, or 2 of the same color (only if the pile has 4+)."},
+            {"number": 2, "title": "Reserve a card", "body": "Take a face-up or top-of-deck card into a hidden hand of up to 3, and gain one gold token."},
+            {"number": 3, "title": "Buy a card", "body": "Pay the cost in gems and previously bought cards (which act as permanent discounts). Replace the slot."}
+          ]
+        }
+      ],
+      "turnFlow": [
+        {"order": 1, "name": "Pick action", "description": "Take gems, reserve, or buy.", "iconKey": "hand", "colorKey": "info"},
+        {"order": 2, "name": "Refill / check", "description": "Refill the card row. Check the noble row for visits."},
+        {"order": 3, "name": "Discard down to 10", "description": "If you hold more than 10 gem tokens, return the excess to the bank.", "iconKey": "warning", "colorKey": "warning"}
+      ],
+      "scoring": {
+        "summary": "Score prestige points from purchased cards and noble visits.",
+        "points": [
+          "Each bought card: its printed prestige (often 0-5)",
+          "Each noble visit: 3 prestige",
+          "First to 15 prestige triggers the final round"
+        ],
+        "gameEnd": "When a player reaches 15 prestige on their turn, finish the current round so everyone has the same number of turns. Most prestige wins."
+      },
+      "faq": [
+        {"question": "Can a noble visit on someone else's turn?", "answer": "Yes — but only one noble per turn, and visits only happen at the end of the active player's turn."}
+      ],
+      "commonMistakes": [
+        {"title": "Forgetting the 10-token cap", "body": "Returning excess tokens at end of turn is mandatory, not optional."}
+      ],
+      "quickReference": {
+        "sections": [
+          {"title": "Actions (pick one)", "items": ["Take 3 different gems", "Take 2 of the same (pile must have 4+)", "Reserve a card (+1 gold)", "Buy a card"]},
+          {"title": "Discounts", "items": ["Each bought card permanently reduces future costs of its color by 1"]},
+          {"title": "End trigger", "items": ["15 prestige → finish the round"]}
+        ]
+      }
+    }
+  },
+  {
+    "id": "azul",
+    "game": {
+      "name": "Azul",
+      "description": "Decorate the walls of the Royal Palace of Évora by drafting beautiful Portuguese tiles row by row.",
+      "objective": "Score the most points by carefully placing tiles on your wall to form sets, columns, and rows.",
+      "categories": ["Family", "Strategy"],
+      "minPlayers": 2,
+      "maxPlayers": 4,
+      "minMinutes": 30,
+      "maxMinutes": 45,
+      "difficulty": "Medium",
+      "ageRange": "8+",
+      "imageUrl": "https://images.unsplash.com/photo-1582739041437-1f06bcefedfd?auto=format&fit=crop&w=900&q=80",
+      "rating": 4.7,
+      "popularity": 84
+    },
+    "guide": {
+      "components": [
+        {"name": "Player boards", "count": 4},
+        {"name": "Tiles", "count": 100, "description": "5 colors × 20"},
+        {"name": "Factory displays", "count": 9},
+        {"name": "First-player marker", "count": 1}
+      ],
+      "setupSteps": [
+        {"order": 1, "title": "Place factory displays", "body": "Put (2 × players + 1) factory displays in a circle on the table. Fill each with 4 random tiles from the bag.", "images": [{"iconKey": "tile", "caption": "Factories filled with 4 tiles each"}]},
+        {"order": 2, "title": "Hand out player boards", "body": "Each player takes a board and a scoring marker placed on 0.", "checklist": ["Factories arranged", "Tiles drawn from the bag", "Scoring markers on 0"], "images": [{"iconKey": "board", "caption": "Pattern lines + wall + floor line"}]},
+        {"order": 3, "title": "Choose start player", "body": "The player who most recently visited Portugal goes first. Place the first-player marker in the center pool.", "images": [{"iconKey": "flag", "caption": "Start player"}]}
+      ],
+      "howToPlaySteps": [
+        {
+          "order": 1,
+          "title": "Drafting tiles",
+          "body": "Take all tiles of one color from a factory display; remaining tiles go to the center pool. Or take all tiles of one color from the center.",
+          "images": [{"iconKey": "hand", "caption": "Pick all of one color"}],
+          "rules": [
+            {"number": 1, "title": "Pick a source", "body": "Either a factory display or the center pool."},
+            {"number": 2, "title": "Take one color", "body": "All tiles of that color go to your pattern lines. Other factory tiles slide to the center."},
+            {"number": 3, "title": "Overflow drops to your floor", "body": "Tiles that don't fit on a pattern line go onto your floor line — and they cost you negative points."}
+          ]
+        },
+        {
+          "order": 2,
+          "title": "Wall tiling phase",
+          "body": "At the end of the round, complete pattern lines move ONE tile to the matching column on your wall; the rest go to the lid.",
+          "warning": "Incomplete pattern lines stay where they are — they keep the tiles you've drafted.",
+          "images": [{"iconKey": "check", "caption": "Place tile on wall, score adjacent tiles"}]
+        }
+      ],
+      "turnFlow": [
+        {"order": 1, "name": "Draft", "description": "Take one color from a factory or the center.", "iconKey": "tile", "colorKey": "primary"},
+        {"order": 2, "name": "Stage on pattern lines", "description": "Place on the rightmost-fitting pattern line, overflow to floor.", "iconKey": "board", "colorKey": "info"},
+        {"order": 3, "name": "End-of-round tiling", "description": "Move one tile per completed pattern line to the wall and score.", "iconKey": "star", "colorKey": "success"}
+      ],
+      "scoring": {
+        "summary": "Score every wall tile you place during the tiling phase, then take penalties from your floor line.",
+        "points": [
+          "Single isolated wall tile: 1 pt",
+          "Wall tile in a row/column: count all connected tiles (incl. itself)",
+          "Floor line: each tile is -1, -1, -2, -2, -2, -3, -3",
+          "End-game bonuses: 2 pts per full row, 7 pts per full column, 10 pts per complete color set"
+        ],
+        "gameEnd": "The game ends the round a player completes any horizontal row on their wall."
+      },
+      "faq": [
+        {"question": "What if I can't legally place tiles on any pattern line?", "answer": "They all go to the floor line as penalties."}
+      ],
+      "commonMistakes": [
+        {"title": "Filling a pattern line you already have on the wall", "body": "You cannot. Drafting that color forces tiles onto the floor instead."}
+      ],
+      "quickReference": {
+        "sections": [
+          {"title": "Round phases", "items": ["1. Factory offer (draft until empty)", "2. Wall tiling (place + score)", "3. Prepare next round"]},
+          {"title": "End-game bonuses", "items": ["Full row: +2", "Full column: +7", "Complete color (5 of one): +10"]},
+          {"title": "Floor penalties", "items": ["Slots: -1, -1, -2, -2, -2, -3, -3"]}
+        ]
+      }
+    }
+  },
+  {
+    "id": "seven-wonders",
+    "game": {
+      "name": "7 Wonders",
+      "description": "Lead an ancient civilization across three ages by simultaneously drafting cards to build your wonder, military, science, and economy.",
+      "objective": "Have the most victory points after three ages of card drafting.",
+      "categories": ["Strategy", "Cards"],
+      "minPlayers": 3,
+      "maxPlayers": 7,
+      "minMinutes": 30,
+      "maxMinutes": 30,
+      "difficulty": "Medium",
+      "ageRange": "10+",
+      "imageUrl": "https://images.unsplash.com/photo-1551103782-8ab07afd45c1?auto=format&fit=crop&w=900&q=80",
+      "rating": 4.6,
+      "popularity": 87
+    },
+    "guide": {
+      "components": [
+        {"name": "Wonder boards", "count": 7, "description": "Each has an A and B side"},
+        {"name": "Age I / II / III card decks", "count": 3},
+        {"name": "Conflict tokens", "count": 26},
+        {"name": "Coin tokens", "count": 46}
+      ],
+      "setupSteps": [
+        {"order": 1, "title": "Give each player a Wonder", "body": "Deal each player one Wonder board, A or B side up. Each starts with 3 coins.", "images": [{"iconKey": "castle", "caption": "Each player builds a Wonder"}, {"iconKey": "coin", "caption": "3 coins to start"}]},
+        {"order": 2, "title": "Prepare Age I", "body": "Shuffle Age I cards. Deal each player 7 cards face-down. Remove unused Guild cards based on player count for Ages I and II.", "checklist": ["Wonder boards out", "3 coins each", "Age I deck shuffled and dealt"], "images": [{"iconKey": "deck", "caption": "7 Age I cards each"}]}
+      ],
+      "howToPlaySteps": [
+        {
+          "order": 1,
+          "title": "Simultaneous drafting",
+          "body": "Each age has 6 rounds. Every round, every player picks one card from their hand and passes the rest in the age's direction (Age I and III: left; Age II: right).",
+          "images": [{"iconKey": "cards", "caption": "Pick one, pass the rest"}],
+          "rules": [
+            {"number": 1, "title": "Build a structure", "body": "Pay the cost in resources or coins. The card stays in front of you."},
+            {"number": 2, "title": "Build a Wonder stage", "body": "Tuck the card under your Wonder board, paying the listed cost."},
+            {"number": 3, "title": "Sell for coins", "body": "Discard the card to gain 3 coins."}
+          ]
+        },
+        {
+          "order": 2,
+          "title": "End-of-age combat",
+          "body": "After the 6 rounds of each age, neighbors compare shield (military) counts. The higher count earns conflict tokens; the lower one loses a -1 token.",
+          "warning": "Conflict tokens give +1 / +3 / +5 in Ages I / II / III. Falling behind costs you.",
+          "images": [{"iconKey": "knight", "caption": "Compare shields with neighbors"}]
+        }
+      ],
+      "turnFlow": [
+        {"order": 1, "name": "Choose a card", "description": "All players pick one card from their hand simultaneously."},
+        {"order": 2, "name": "Resolve the card", "description": "Build a structure, build a Wonder stage, or discard for 3 coins."},
+        {"order": 3, "name": "Pass the hand", "description": "Hand the rest to the neighbor in the age's direction."}
+      ],
+      "scoring": {
+        "summary": "Add up points from civilian, military, science, commercial, guild cards, Wonder stages, and treasury.",
+        "points": [
+          "Civilian (blue) cards: face value",
+          "Military: conflict tokens earned",
+          "Science: sets of identical symbols + groups of 3 different (7 pts per group)",
+          "Commercial (yellow): variable",
+          "Guild (purple): variable, set in Age III",
+          "Treasury: 1 pt per 3 coins",
+          "Wonder stages: face value"
+        ],
+        "gameEnd": "After Age III's 6 rounds and the final conflict resolution, total each player's points. Most points wins."
+      },
+      "faq": [
+        {"question": "Can I build a card I already have?", "answer": "No — duplicate structures are illegal. But many cards let you build later ones for free."}
+      ],
+      "commonMistakes": [
+        {"title": "Ignoring resource diversity", "body": "Without raw goods, you'll be forced to pay neighbors or discard cards for coins."}
+      ],
+      "quickReference": {
+        "sections": [
+          {"title": "Card actions (pick one)", "items": ["Build the structure", "Build a Wonder stage", "Sell for 3 coins"]},
+          {"title": "Science scoring", "items": ["3 identical: count² pts", "Set of 3 different symbols: +7 pts"]},
+          {"title": "Conflict tokens", "items": ["Age I: +1 win / -1 loss", "Age II: +3 / -1", "Age III: +5 / -1"]}
+        ]
+      }
+    }
+  },
+  {
+    "id": "king-of-tokyo",
+    "game": {
+      "name": "King of Tokyo",
+      "description": "Become a giant monster smashing your way through Tokyo — roll dice, attack rivals, and claim victory.",
+      "objective": "Be the last monster standing or be the first to 20 victory points.",
+      "categories": ["Family", "Party"],
+      "minPlayers": 2,
+      "maxPlayers": 6,
+      "minMinutes": 30,
+      "maxMinutes": 30,
+      "difficulty": "Easy",
+      "ageRange": "8+",
+      "imageUrl": "https://images.unsplash.com/photo-1614852207009-90cb6da6e0bf?auto=format&fit=crop&w=900&q=80",
+      "rating": 4.4,
+      "popularity": 78
+    },
+    "guide": {
+      "components": [
+        {"name": "Monster boards", "count": 6},
+        {"name": "Dice", "count": 6, "description": "8 with the Power Up expansion"},
+        {"name": "Power cards", "count": 66},
+        {"name": "Energy cubes", "count": 50}
+      ],
+      "setupSteps": [
+        {"order": 1, "title": "Pick a monster", "body": "Each player chooses a monster board. Place its life dial at 10 and its star (VP) tracker at 0.", "images": [{"iconKey": "heart", "caption": "Start at 10 health"}, {"iconKey": "star", "caption": "0 VP"}]},
+        {"order": 2, "title": "Shuffle power cards", "body": "Reveal 3 power cards face up next to the deck. Place energy cubes nearby.", "checklist": ["Monsters chosen", "Life at 10, VP at 0", "3 power cards revealed"], "images": [{"iconKey": "cards", "caption": "3 cards available to buy"}]},
+        {"order": 3, "title": "Tokyo is empty to start", "body": "Nobody starts in Tokyo. The first player to roll an attack moves there.", "images": [{"iconKey": "city", "caption": "Tokyo begins empty"}]}
+      ],
+      "howToPlaySteps": [
+        {
+          "order": 1,
+          "title": "Roll dice up to 3 times",
+          "body": "Roll all 6 dice. Keep any you like and re-roll the rest. You can re-roll twice for a total of 3 throws.",
+          "images": [{"iconKey": "dice", "caption": "Roll up to 3 times"}],
+          "rules": [
+            {"number": 1, "title": "Hearts heal", "body": "Each heart restores 1 health (but not while you're in Tokyo)."},
+            {"number": 2, "title": "Claws attack", "body": "Claws damage every monster NOT in your location. If you're in Tokyo, you hit everyone outside; if you're outside, you hit whoever is in Tokyo."},
+            {"number": 3, "title": "Energy buys cards", "body": "Energy cubes fuel power cards from the market."},
+            {"number": 4, "title": "Numbers score VP", "body": "Three of a kind in 1/2/3 = 1/2/3 VP, plus 1 VP per extra of that number."}
+          ]
+        },
+        {
+          "order": 2,
+          "title": "Tokyo movement",
+          "body": "If you damage a monster in Tokyo, they choose to yield. If they leave, you must enter (and gain 1 VP).",
+          "warning": "You can't heal while in Tokyo. Hearts are wasted there.",
+          "images": [{"iconKey": "city", "caption": "Yield or stay"}]
+        }
+      ],
+      "turnFlow": [
+        {"order": 1, "name": "Roll dice", "description": "Roll all 6, re-roll up to twice.", "iconKey": "dice", "colorKey": "primary"},
+        {"order": 2, "name": "Resolve dice", "description": "Apply hearts, claws, energy, and numbers in any order.", "iconKey": "warning", "colorKey": "warning"},
+        {"order": 3, "name": "Buy power cards", "description": "Spend energy on cards (1 VP discard to refresh the lineup).", "iconKey": "cards", "colorKey": "info"}
+      ],
+      "scoring": {
+        "summary": "Score VP from dice combos, entering or staying in Tokyo, and from many power cards.",
+        "points": [
+          "Three 1s: 1 VP (+1 per extra)",
+          "Three 2s: 2 VP (+1 per extra)",
+          "Three 3s: 3 VP (+1 per extra)",
+          "Enter Tokyo: 1 VP",
+          "Start a turn in Tokyo: 2 VP"
+        ],
+        "gameEnd": "Win by being the last monster alive or by reaching 20 VP."
+      },
+      "faq": [
+        {"question": "Can I refuse to enter Tokyo if it's empty?", "answer": "No — if you roll any claws while it's empty, you must enter and gain 1 VP."}
+      ],
+      "commonMistakes": [
+        {"title": "Healing in Tokyo", "body": "Hearts have no effect while you occupy Tokyo. Use those slots for something else."}
+      ],
+      "quickReference": {
+        "sections": [
+          {"title": "Dice faces", "items": ["Heart: heal 1 (not in Tokyo)", "Claw: attack opposite side of Tokyo", "Lightning: gain energy", "1 / 2 / 3: score with three of a kind"]},
+          {"title": "Tokyo VP", "items": ["Enter Tokyo: +1 VP", "Start a turn in Tokyo: +2 VP", "Can't heal while in Tokyo"]},
+          {"title": "Win conditions", "items": ["Reach 20 VP", "Be the last monster alive"]}
+        ]
+      }
+    }
+  }
+]

@@ -1,0 +1,35 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "boardmate-app",
+          "appId": "1:433731039140:android:220de043f02f5ad0c91b31",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "boardmate-app",
+          "appId": "1:433731039140:ios:86052b00e3959f8ec91b31",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "boardmate-app",
+          "configurations": {
+            "android": "1:433731039140:android:220de043f02f5ad0c91b31",
+            "ios": "1:433731039140:ios:86052b00e3959f8ec91b31",
+            "web": "1:433731039140:web:e6d8695a26bdbc03c91b31"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

@@ -1,30 +1,28 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
+import 'package:boardmate/config/constants/app_colors.dart';
+import 'package:boardmate/core/widgets/bm_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:boardmate/main.dart';
-
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('BmButton renders its label and fires onPressed',
+      (WidgetTester tester) async {
+    var taps = 0;
+    await tester.pumpWidget(
+      ScreenUtilInit(
+        designSize: const Size(393, 852),
+        builder: (_, __) => MaterialApp(
+          theme: ThemeData(colorScheme: const ColorScheme.light(primary: AppColors.primaryGold, onPrimary: Colors.white, secondary: AppColors.secondaryNavy, onSecondary: Colors.white, surface: AppColors.surfaceDefault, onSurface: AppColors.secondaryNavy, error: AppColors.error, onError: Colors.white)),
+          home: Scaffold(
+            body: BmButton(label: 'Tap me', onPressed: () => taps++),
+          ),
+        ),
+      ),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    expect(find.text('Tap me'), findsOneWidget);
+    await tester.tap(find.text('Tap me'));
     await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(taps, 1);
   });
 }

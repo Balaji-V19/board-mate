@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Private authoring docs (kept local, used as AI prompts)
+GAME_CONTENT_GUIDE.md
