@@ -15,11 +15,45 @@ import '../../../auth/presentation/providers/auth_notifier.dart';
 
 Future<void> _openExternalUrl(BuildContext context, String url) async {
   final uri = Uri.tryParse(url);
-  if (uri == null) return;
-  final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
-  if (!ok && context.mounted) {
+  if (uri == null) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invalid link: $url')),
+      );
+    }
+    return;
+  }
+
+  // Try the OS browser first; if that fails (no browser, locked, or the
+  // url_launcher pod isn't registered yet on a hot-reloaded build), fall
+  // back to the in-app web view mode before surfacing an error.
+  bool launched = false;
+  String? errorMessage;
+
+  for (final mode in const [
+    LaunchMode.externalApplication,
+    LaunchMode.platformDefault,
+  ]) {
+    try {
+      launched = await launchUrl(uri, mode: mode);
+      if (launched) break;
+    } catch (e) {
+      errorMessage = e.toString();
+      if (kDebugMode) {
+        debugPrint('launchUrl($mode) failed: $e');
+      }
+    }
+  }
+
+  if (!launched && context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Could not open $url')),
+      SnackBar(
+        content: Text(
+          errorMessage == null
+              ? 'Could not open $url'
+              : 'Could not open link.',
+        ),
+      ),
     );
   }
 }
@@ -167,20 +201,6 @@ class SettingsPage extends ConsumerWidget {
                 title: 'Terms of Service',
                 onTap: () =>
                     _openExternalUrl(context, LegalLinks.termsOfServiceUrl),
-              ),
-              _Divider(),
-              _SettingRow(
-                icon: Icons.code_rounded,
-                iconTint: const Color(0xFFD9E2EA),
-                iconColor: AppColors.info,
-                title: 'Open Source Licenses',
-                subtitle: 'Third-party packages used',
-                onTap: () => showLicensePage(
-                  context: context,
-                  applicationName: 'BoardMate',
-                  applicationVersion: '1.0.0',
-                  applicationLegalese: LegalLinks.copyrightLine,
-                ),
               ),
             ]),
             if (kDebugMode) ...[
