@@ -7,17 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:433731039140:android:220de043f02f5ad0c91b31",
+        "mobilesdk_app_id": "1:433731039140:android:0915087146fa5eb9c91b31",
         "android_client_info": {
-          "package_name": "com.board.game.boardmate"
+          "package_name": "dev.balaji.boardmate"
         }
       },
       "oauth_client": [
         {
-          "client_id": "433731039140-cja9feklc402mljei44omf785m0gk2rm.apps.googleusercontent.com",
+          "client_id": "433731039140-onhe4eh211gs91olkh0t510ud7tfntji.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.board.game.boardmate",
+            "package_name": "dev.balaji.boardmate",
             "certificate_hash": "e12815ebf578d70ad79a904ff1fe90fcca5a055f"
           }
         },

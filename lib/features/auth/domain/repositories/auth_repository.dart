@@ -7,5 +7,6 @@ abstract class AuthRepository {
   Stream<AppUser?> watchUser();
   AppUser? get currentUser;
   Future<Either<Failure, AppUser>> signInWithGoogle();
+  Future<Either<Failure, AppUser>> signInWithApple();
   Future<Either<Failure, void>> signOut();
 }

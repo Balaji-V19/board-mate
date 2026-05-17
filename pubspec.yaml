@@ -40,10 +40,15 @@ dependencies:
   firebase_auth: ^5.3.1
   cloud_firestore: ^5.4.4
   google_sign_in: ^6.2.1
+  sign_in_with_apple: ^6.1.2
+  crypto: ^3.0.5
 
   # Local storage / images
   shared_preferences: ^2.3.2
   cached_network_image: ^3.4.1
+
+  # Opening external URLs (privacy policy, terms, support links)
+  url_launcher: ^6.3.1
 
   # Misc
   intl: ^0.19.0

@@ -25,6 +25,7 @@ class AppStrings {
   static const String signInSubtitle =
       'Save your games, track learning progress, and pick up where you left off.';
   static const String continueWithGoogle = 'Continue with Google';
+  static const String continueWithApple = 'Continue with Apple';
 
   // Home
   static const String greetingMorning = 'Good morning';

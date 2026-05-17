@@ -33,6 +33,20 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, AppUser>> signInWithApple() async {
+    try {
+      final user = await _remote.signInWithApple();
+      return right(user);
+    } on AuthException catch (e) {
+      return left(AuthFailure(e.message));
+    } on fb.FirebaseAuthException catch (e) {
+      return left(AuthFailure(e.message ?? 'Sign-in failed'));
+    } catch (e) {
+      return left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> signOut() async {
     try {
       await _remote.signOut();

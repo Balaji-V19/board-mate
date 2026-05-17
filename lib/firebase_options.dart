@@ -58,7 +58,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyB4XIam5bghSexAV7w6IPlwNFulv5Gv03k',
-    appId: '1:433731039140:android:220de043f02f5ad0c91b31',
+    appId: '1:433731039140:android:0915087146fa5eb9c91b31',
     messagingSenderId: '433731039140',
     projectId: 'boardmate-app',
     storageBucket: 'boardmate-app.firebasestorage.app',
@@ -66,13 +66,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBXWQE2fo-7ZMU9iv00G22rDh7ROPgjbPI',
-    appId: '1:433731039140:ios:86052b00e3959f8ec91b31',
+    appId: '1:433731039140:ios:549ff26845391072c91b31',
     messagingSenderId: '433731039140',
     projectId: 'boardmate-app',
     storageBucket: 'boardmate-app.firebasestorage.app',
     androidClientId: '433731039140-cja9feklc402mljei44omf785m0gk2rm.apps.googleusercontent.com',
-    iosClientId: '433731039140-7nv19iai74kt2fj6tu5lvmtfugb820gn.apps.googleusercontent.com',
-    iosBundleId: 'com.board.game.boardmate',
+    iosClientId: '433731039140-ve5nvu3h40kgbv6milo96aci7r07v73d.apps.googleusercontent.com',
+    iosBundleId: 'dev.balaji.boardmate',
   );
 
 }

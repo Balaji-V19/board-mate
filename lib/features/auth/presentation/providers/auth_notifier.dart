@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../dependency_injection.dart';
 import '../../domain/entities/app_user.dart';
+import '../../domain/usecases/sign_in_with_apple.dart';
 import '../../domain/usecases/sign_in_with_google.dart';
 import '../../domain/usecases/sign_out.dart';
 import '../../domain/usecases/watch_auth_state.dart';
@@ -14,15 +15,18 @@ class AuthNotifier extends ChangeNotifier {
   AuthNotifier({
     required WatchAuthStateUseCase watchAuthState,
     required SignInWithGoogleUseCase signInWithGoogle,
+    required SignInWithAppleUseCase signInWithApple,
     required SignOutUseCase signOut,
   })  : _watchAuthState = watchAuthState,
         _signInWithGoogle = signInWithGoogle,
+        _signInWithApple = signInWithApple,
         _signOut = signOut {
     _sub = _watchAuthState().listen(_onAuthChanged);
   }
 
   final WatchAuthStateUseCase _watchAuthState;
   final SignInWithGoogleUseCase _signInWithGoogle;
+  final SignInWithAppleUseCase _signInWithApple;
   final SignOutUseCase _signOut;
   StreamSubscription<AppUser?>? _sub;
 
@@ -55,6 +59,15 @@ class AuthNotifier extends ChangeNotifier {
   Future<void> signInWithGoogle() async {
     _setState(const AuthState.authenticating());
     final result = await _signInWithGoogle();
+    result.fold(
+      (failure) => _setState(AuthState.error(failure.message)),
+      (user) => _setState(AuthState.authenticated(user)),
+    );
+  }
+
+  Future<void> signInWithApple() async {
+    _setState(const AuthState.authenticating());
+    final result = await _signInWithApple();
     result.fold(
       (failure) => _setState(AuthState.error(failure.message)),
       (user) => _setState(AuthState.authenticated(user)),

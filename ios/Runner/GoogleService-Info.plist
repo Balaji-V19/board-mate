@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>433731039140-7nv19iai74kt2fj6tu5lvmtfugb820gn.apps.googleusercontent.com</string>
+	<string>433731039140-ve5nvu3h40kgbv6milo96aci7r07v73d.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.433731039140-7nv19iai74kt2fj6tu5lvmtfugb820gn</string>
+	<string>com.googleusercontent.apps.433731039140-ve5nvu3h40kgbv6milo96aci7r07v73d</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>433731039140-cja9feklc402mljei44omf785m0gk2rm.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.board.game.boardmate</string>
+	<string>dev.balaji.boardmate</string>
 	<key>PROJECT_ID</key>
 	<string>boardmate-app</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:433731039140:ios:86052b00e3959f8ec91b31</string>
+	<string>1:433731039140:ios:549ff26845391072c91b31</string>
 </dict>
 </plist>

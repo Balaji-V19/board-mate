@@ -3,13 +3,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../config/constants/app_colors.dart';
 import '../../../../config/constants/app_spacing.dart';
 import '../../../../config/constants/app_strings.dart';
 import '../../../../config/constants/app_textstyle.dart';
+import '../../../../config/legal_links.dart';
 import '../../../../core/services/seed_service.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
+
+Future<void> _openExternalUrl(BuildContext context, String url) async {
+  final uri = Uri.tryParse(url);
+  if (uri == null) return;
+  final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+  if (!ok && context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Could not open $url')),
+    );
+  }
+}
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -114,7 +127,7 @@ class SettingsPage extends ConsumerWidget {
                 iconTint: const Color(0xFFD9E2EA),
                 iconColor: AppColors.info,
                 title: 'Help & FAQ',
-                onTap: () {},
+                onTap: () => _openExternalUrl(context, LegalLinks.supportUrl),
               ),
               _Divider(),
               _SettingRow(
@@ -132,6 +145,42 @@ class SettingsPage extends ConsumerWidget {
                 title: 'Image credits',
                 subtitle: 'Photographers & licences',
                 onTap: () => context.push('/credits'),
+              ),
+            ]),
+            SizedBox(height: 22.h),
+            _SectionLabel('LEGAL'),
+            _SectionCard(children: [
+              _SettingRow(
+                icon: Icons.shield_outlined,
+                iconTint: const Color(0xFFD7E6D7),
+                iconColor: AppColors.success,
+                title: 'Privacy Policy',
+                subtitle: 'How we handle your data',
+                onTap: () =>
+                    _openExternalUrl(context, LegalLinks.privacyPolicyUrl),
+              ),
+              _Divider(),
+              _SettingRow(
+                icon: Icons.description_outlined,
+                iconTint: const Color(0xFFF1E4CC),
+                iconColor: AppColors.primaryGold,
+                title: 'Terms of Service',
+                onTap: () =>
+                    _openExternalUrl(context, LegalLinks.termsOfServiceUrl),
+              ),
+              _Divider(),
+              _SettingRow(
+                icon: Icons.code_rounded,
+                iconTint: const Color(0xFFD9E2EA),
+                iconColor: AppColors.info,
+                title: 'Open Source Licenses',
+                subtitle: 'Third-party packages used',
+                onTap: () => showLicensePage(
+                  context: context,
+                  applicationName: 'BoardMate',
+                  applicationVersion: '1.0.0',
+                  applicationLegalese: LegalLinks.copyrightLine,
+                ),
               ),
             ]),
             if (kDebugMode) ...[
@@ -173,8 +222,19 @@ class SettingsPage extends ConsumerWidget {
             ),
             SizedBox(height: 18.h),
             Center(
-              child: Text('${AppStrings.version} 1.0.0',
-                  style: AppTextStyle.helper()),
+              child: Column(
+                children: [
+                  Text('${AppStrings.version} 1.0.0',
+                      style: AppTextStyle.helper()),
+                  SizedBox(height: 4.h),
+                  Text(
+                    LegalLinks.copyrightLine,
+                    style: AppTextStyle.helper()
+                        .copyWith(fontSize: 11.sp),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
           ],
         ),

@@ -1,3 +1,6 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -61,6 +64,17 @@ class SignInPage extends ConsumerWidget {
                 loading: loading,
                 onPressed: () => ref.read(authNotifierProvider).signInWithGoogle(),
               ),
+              if (!kIsWeb && Platform.isIOS) ...[
+                SizedBox(height: 10.h),
+                BmButton(
+                  label: AppStrings.continueWithApple,
+                  icon: Icons.apple,
+                  variant: BmButtonVariant.secondary,
+                  loading: loading,
+                  onPressed: () =>
+                      ref.read(authNotifierProvider).signInWithApple(),
+                ),
+              ],
               SizedBox(height: 14.h),
               Text(
                 'By continuing, you agree to our terms and privacy policy.',
