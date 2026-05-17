@@ -2,18 +2,23 @@ class AppStrings {
   AppStrings._();
 
   static const String appName = 'BoardMate';
-  static const String tagline = 'Learn how to play physical board games.';
+  static const String tagline = 'Learn any board game,\nthe friendly way.';
+  static const String splashFooter = 'Your board game companion';
 
   // Onboarding
-  static const String onboardingTitle1 = 'Learn games without long manuals';
+  static const String onboardingTitle1 = 'Learn real board games';
   static const String onboardingBody1 =
-      'Skip the rulebook. Get to the table faster with short, scannable guides.';
-  static const String onboardingTitle2 = 'Set up the board step by step';
+      'BoardMate teaches you how to play physical board games — not digital versions. Just clear, friendly guides.';
+  static const String onboardingTitle2 = 'Step-by-step setup\n& clear rules';
   static const String onboardingBody2 =
-      'Follow a visual checklist so the first game starts smoothly.';
-  static const String onboardingTitle3 = 'Quick rules while you play';
+      'Beginner-friendly setup guides, turn-by-turn walkthroughs, and scoring made simple.';
+  static const String onboardingTitle3 = 'Save & learn offline';
   static const String onboardingBody3 =
-      'Tap to look up a phase, scoring, or a fiddly rule mid-game.';
+      'Bookmark your favourites, download guides for game night, and keep a quick reference handy.';
+
+  static const String onboardingContinue = 'Continue';
+  static const String onboardingGetStarted = 'Get Started';
+  static const String onboardingSkip = 'Skip';
 
   // Auth
   static const String signInTitle = 'Sign in to BoardMate';

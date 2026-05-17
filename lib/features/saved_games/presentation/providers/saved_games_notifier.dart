@@ -32,6 +32,14 @@ class SavedGamesNotifier extends ChangeNotifier {
     }
   }
 
+  bool isDownloaded(String gameId) =>
+      _items.any((s) => s.gameId == gameId && s.downloaded);
+
+  Future<void> toggleDownloaded(String gameId) async {
+    final current = isDownloaded(gameId);
+    await _repo.setDownloaded(gameId, !current);
+  }
+
   @override
   void dispose() {
     _sub?.cancel();

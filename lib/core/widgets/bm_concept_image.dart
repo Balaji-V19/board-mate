@@ -95,6 +95,59 @@ const _registry = <String, _Concept>{
   'arrow': _Concept(Icons.arrow_forward_rounded, AppColors.info),
 };
 
+/// Registry of verified royalty-free Unsplash photos for game-concept visuals.
+/// Keep these URLs centralised so we can swap them out in one place if any
+/// break. Add new entries here when authoring a guide needs a new visual.
+const _photoRegistry = <String, String>{
+  // dice / rolling
+  'dice-pair':
+      'https://images.unsplash.com/photo-1551431009-a802eeec77b1?auto=format&fit=crop&w=900&q=80',
+  'dice-many':
+      'https://images.unsplash.com/photo-1547638375-ebf04735d792?auto=format&fit=crop&w=900&q=80',
+  'dice-colorful':
+      'https://images.unsplash.com/photo-1611996575749-79a3a250f948?auto=format&fit=crop&w=900&q=80',
+  'dice-close':
+      'https://images.unsplash.com/photo-1570303345338-e1f0eddf4946?auto=format&fit=crop&w=900&q=80',
+  // chess pieces
+  'chess-board':
+      'https://images.unsplash.com/photo-1580541832626-2a7131ee809f?auto=format&fit=crop&w=900&q=80',
+  'chess-pieces':
+      'https://images.unsplash.com/photo-1528819622765-d6bcf132f793?auto=format&fit=crop&w=900&q=80',
+  'chess-knight':
+      'https://images.unsplash.com/photo-1560174038-da43ac74f01b?auto=format&fit=crop&w=900&q=80',
+  'chess-king':
+      'https://images.unsplash.com/photo-1586165368502-1bad197a6461?auto=format&fit=crop&w=900&q=80',
+  'chess-piece':
+      'https://images.unsplash.com/photo-1619976336288-38db38e4c503?auto=format&fit=crop&w=900&q=80',
+  // cards
+  'cards-deck':
+      'https://images.unsplash.com/photo-1529480384838-c1681c84aca5?auto=format&fit=crop&w=900&q=80',
+  'cards-spread':
+      'https://images.unsplash.com/photo-1501003878151-d3cb87799705?auto=format&fit=crop&w=900&q=80',
+  'cards-stacked':
+      'https://images.unsplash.com/photo-1541278107931-e006523892df?auto=format&fit=crop&w=900&q=80',
+  'card-ace':
+      'https://images.unsplash.com/photo-1622014402888-e78d0fd790d0?auto=format&fit=crop&w=900&q=80',
+  // tokens / pieces / meeples
+  'wooden-pieces':
+      'https://images.unsplash.com/photo-1629760946220-5693ee4c46ac?auto=format&fit=crop&w=900&q=80',
+  'wooden-blocks':
+      'https://images.unsplash.com/photo-1644628270163-a2ccfb778a9c?auto=format&fit=crop&w=900&q=80',
+  'game-pieces':
+      'https://images.unsplash.com/photo-1659480142923-0cd01191e0e9?auto=format&fit=crop&w=900&q=80',
+  'pieces-on-map':
+      'https://images.unsplash.com/photo-1761716475966-77b500b6b29f?auto=format&fit=crop&w=900&q=80',
+  // general game scenes
+  'playing-game':
+      'https://images.unsplash.com/photo-1677188010559-0667a1ed33a0?auto=format&fit=crop&w=900&q=80',
+  'rulebook':
+      'https://images.unsplash.com/photo-1640461470346-c8b56497850a?auto=format&fit=crop&w=900&q=80',
+  'game-board':
+      'https://images.unsplash.com/photo-1632501641765-e568d28b0015?auto=format&fit=crop&w=900&q=80',
+  'puzzle-game':
+      'https://images.unsplash.com/photo-1585504198199-20277593b94f?auto=format&fit=crop&w=900&q=80',
+};
+
 class BmConceptImage extends StatelessWidget {
   const BmConceptImage({super.key, required this.image, this.size = 160});
 
@@ -103,7 +156,10 @@ class BmConceptImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasUrl = image.url != null && image.url!.isNotEmpty;
+    final resolvedUrl = (image.url != null && image.url!.isNotEmpty)
+        ? image.url
+        : _photoRegistry[image.photoKey?.toLowerCase()];
+
     final concept = _registry[image.iconKey?.toLowerCase()] ??
         const _Concept(Icons.casino_rounded, AppColors.primaryGold);
 
@@ -122,12 +178,15 @@ class BmConceptImage extends StatelessWidget {
           ),
           clipBehavior: Clip.antiAlias,
           alignment: Alignment.center,
-          child: hasUrl
+          child: resolvedUrl != null
               ? CachedNetworkImage(
-                  imageUrl: image.url!,
+                  imageUrl: resolvedUrl,
                   fit: BoxFit.cover,
                   width: double.infinity,
                   height: double.infinity,
+                  placeholder: (_, __) => Icon(concept.icon,
+                      color: concept.tint.withValues(alpha: 0.4),
+                      size: 48.sp),
                   errorWidget: (_, __, ___) =>
                       Icon(concept.icon, color: concept.tint, size: 64.sp),
                 )

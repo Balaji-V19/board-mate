@@ -25,6 +25,10 @@ import 'features/games/domain/usecases/get_games.dart';
 import 'features/games/domain/usecases/search_games.dart';
 import 'features/games/presentation/providers/games_notifier.dart';
 import 'features/games/presentation/providers/progress_notifier.dart';
+import 'features/requests/data/datasources/game_requests_firestore_datasource.dart';
+import 'features/requests/data/repositories/game_requests_repository_impl.dart';
+import 'features/requests/domain/repositories/game_requests_repository.dart';
+import 'features/requests/presentation/providers/request_game_notifier.dart';
 import 'features/saved_games/data/datasources/saved_games_firestore_datasource.dart';
 import 'features/saved_games/data/repositories/saved_games_repository_impl.dart';
 import 'features/saved_games/domain/repositories/saved_games_repository.dart';
@@ -100,6 +104,19 @@ Future<void> initializeDependencies() async {
   );
   sl.registerLazySingleton<SavedGamesNotifier>(
       () => SavedGamesNotifier(repository: sl<SavedGamesRepository>()));
+
+  // ── game requests ──
+  sl.registerLazySingleton<GameRequestsFirestoreDataSource>(
+    () => GameRequestsFirestoreDataSourceImpl(
+      firestore: sl<FirebaseFirestore>(),
+      auth: sl<FirebaseAuth>(),
+    ),
+  );
+  sl.registerLazySingleton<GameRequestsRepository>(
+    () => GameRequestsRepositoryImpl(sl<GameRequestsFirestoreDataSource>()),
+  );
+  sl.registerLazySingleton<RequestGameNotifier>(
+      () => RequestGameNotifier(repository: sl<GameRequestsRepository>()));
 
   // ── progress ──
   sl.registerLazySingleton<ProgressFirestoreDataSource>(

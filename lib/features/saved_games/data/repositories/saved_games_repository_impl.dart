@@ -36,4 +36,17 @@ class SavedGamesRepositoryImpl implements SavedGamesRepository {
       return left(UnknownFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> setDownloaded(
+      String gameId, bool value) async {
+    try {
+      await _remote.setDownloaded(gameId, value);
+      return right(null);
+    } on AuthException catch (e) {
+      return left(AuthFailure(e.message));
+    } catch (e) {
+      return left(UnknownFailure(e.toString()));
+    }
+  }
 }

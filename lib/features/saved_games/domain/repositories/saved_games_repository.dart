@@ -7,4 +7,5 @@ abstract class SavedGamesRepository {
   Stream<List<SavedGameEntity>> watchSaved();
   Future<Either<Failure, void>> save(String gameId);
   Future<Either<Failure, void>> unsave(String gameId);
+  Future<Either<Failure, void>> setDownloaded(String gameId, bool value);
 }

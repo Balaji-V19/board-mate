@@ -38,19 +38,24 @@ class GuideStepEntity extends Equatable {
 }
 
 class StepImage extends Equatable {
-  const StepImage({this.iconKey, this.url, this.caption});
+  const StepImage({this.iconKey, this.photoKey, this.url, this.caption});
 
-  /// Concept key from the registry in `BmConceptImage`. The widget falls back
-  /// to a generic icon when the key is unknown.
+  /// Concept key from the icon registry in `BmConceptImage`. Renders as a
+  /// tinted Material icon. Used as a fallback when no photo loads.
   final String? iconKey;
 
-  /// Optional external image URL (must be CC0 / royalty-free).
+  /// Concept key from the photo registry in `BmConceptImage`. Resolves to a
+  /// verified royalty-free Unsplash URL.
+  final String? photoKey;
+
+  /// Optional explicit image URL (overrides `photoKey`). Must be CC0 /
+  /// royalty-free.
   final String? url;
 
   final String? caption;
 
   @override
-  List<Object?> get props => [iconKey, url, caption];
+  List<Object?> get props => [iconKey, photoKey, url, caption];
 }
 
 class NumberedRuleEntity extends Equatable {

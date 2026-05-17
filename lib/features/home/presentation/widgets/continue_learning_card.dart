@@ -21,12 +21,11 @@ class ContinueLearningCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = AppColors.categoryFor(
-      game.categories.isEmpty ? '' : game.categories.first,
-    );
     final completed = progress.completedSections.length;
     final nextSection = _nextSection();
-    final cta = nextSection == null ? 'Review again' : 'Resume ${nextSection.label.toLowerCase()}';
+    final subtitle = nextSection == null
+        ? 'All sections complete'
+        : '${nextSection.label} · $completed of 3 sections';
     final route = nextSection == null
         ? '/game/${game.id}'
         : '/game/${game.id}/${nextSection.routeSegment}';
@@ -37,71 +36,110 @@ class ContinueLearningCard extends StatelessWidget {
       child: InkWell(
         onTap: () => context.push(route),
         borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-        child: Container(
-          padding: EdgeInsets.all(18.w),
-          decoration: BoxDecoration(
-            color: AppColors.secondaryNavy,
-            borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
-            boxShadow: [
-              BoxShadow(
-                color: accent.withValues(alpha: 0.18),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              Positioned(
-                right: -20,
-                top: -20,
-                child: Container(
-                  width: 120.w,
-                  height: 120.w,
-                  decoration: BoxDecoration(
-                    color: accent.withValues(alpha: 0.18),
-                    shape: BoxShape.circle,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppSpacing.cardRadius),
+          child: SizedBox(
+            height: 138.h,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: const BoxDecoration(
+                      color: AppColors.secondaryNavy,
+                    ),
                   ),
                 ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'CONTINUE LEARNING',
-                    style: AppTextStyle.label(color: Colors.white70)
-                        .copyWith(letterSpacing: 1.2, fontSize: 11.sp),
+                // Gold half-circle decoration on the right
+                Positioned(
+                  right: -36.w,
+                  top: -22.h,
+                  child: Container(
+                    width: 150.w,
+                    height: 150.w,
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryGold.withValues(alpha: 0.32),
+                      shape: BoxShape.circle,
+                    ),
                   ),
-                  SizedBox(height: 8.h),
-                  Text(game.name,
-                      style: AppTextStyle.sectionTitle(color: Colors.white)),
-                  SizedBox(height: 4.h),
-                  Text(
-                    progress.isComplete
-                        ? 'All 3 sections complete'
-                        : '$completed of 3 sections complete',
-                    style: AppTextStyle.helper(color: Colors.white70),
-                  ),
-                  SizedBox(height: 14.h),
-                  BmProgressBar(
-                    value: progress.percent,
-                    color: accent,
-                    background: Colors.white.withValues(alpha: 0.12),
-                    height: 8.h,
-                  ),
-                  SizedBox(height: 16.h),
-                  Row(
+                ),
+                // Content
+                Padding(
+                  padding: EdgeInsets.fromLTRB(18.w, 16.h, 18.w, 16.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(cta,
-                          style: AppTextStyle.bodyStrong(color: Colors.white)),
-                      SizedBox(width: 6.w),
-                      Icon(Icons.arrow_forward_rounded,
-                          color: Colors.white, size: 18.sp),
+                      Text(
+                        'CONTINUE LEARNING',
+                        style: AppTextStyle.label(color: AppColors.primaryGold)
+                            .copyWith(letterSpacing: 1.5, fontSize: 11.sp),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            game.name,
+                            style: AppTextStyle.sectionTitle(
+                                    color: Colors.white)
+                                .copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 22.sp),
+                            maxLines: 1,
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            subtitle,
+                            style: AppTextStyle.helper(
+                              color: Colors.white.withValues(alpha: 0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(right: 70.w),
+                        child: BmProgressBar(
+                          value: progress.percent,
+                          color: AppColors.primaryGold,
+                          background:
+                              Colors.white.withValues(alpha: 0.18),
+                          height: 6.h,
+                        ),
+                      ),
                     ],
                   ),
-                ],
-              ),
-            ],
+                ),
+                // Gold round CTA button
+                Positioned(
+                  right: 22.w,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: Container(
+                      width: 52.w,
+                      height: 52.w,
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryGold,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.secondaryNavy
+                                .withValues(alpha: 0.25),
+                            blurRadius: 12,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(
+                        Icons.chevron_right_rounded,
+                        color: Colors.white,
+                        size: 26.sp,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

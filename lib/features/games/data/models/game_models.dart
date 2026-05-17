@@ -74,6 +74,7 @@ GuideStepEntity _stepFromJson(Map<String, dynamic> j) => GuideStepEntity(
       images: ((j['images'] as List?) ?? const [])
           .map((e) => StepImage(
                 iconKey: (e as Map<String, dynamic>)['iconKey'] as String?,
+                photoKey: e['photoKey'] as String?,
                 url: e['url'] as String?,
                 caption: e['caption'] as String?,
               ))
@@ -97,6 +98,8 @@ ScoringGuideEntity _scoringFromJson(Map<String, dynamic> j) =>
           .toList(),
       tieBreaker: (j['tieBreaker'] ?? '') as String,
       gameEnd: (j['gameEnd'] ?? '') as String,
+      targetScore: (j['targetScore'] as num?)?.toInt(),
+      targetUnit: j['targetUnit'] as String?,
     );
 
 QuickReferenceEntity _quickRefFromJson(Map<String, dynamic> j) =>
@@ -173,6 +176,8 @@ Map<String, dynamic> gameGuideToJson(GameGuideEntity g) => {
         'points': g.scoring.points,
         'tieBreaker': g.scoring.tieBreaker,
         'gameEnd': g.scoring.gameEnd,
+        'targetScore': g.scoring.targetScore,
+        'targetUnit': g.scoring.targetUnit,
       },
       'faq': g.faq.map((f) => {'question': f.question, 'answer': f.answer}).toList(),
       'commonMistakes': g.commonMistakes
@@ -204,6 +209,7 @@ Map<String, dynamic> _stepToJson(GuideStepEntity s) => {
       'images': s.images
           .map((i) => {
                 'iconKey': i.iconKey,
+                'photoKey': i.photoKey,
                 'url': i.url,
                 'caption': i.caption,
               })

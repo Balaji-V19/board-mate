@@ -10,6 +10,7 @@ abstract class SavedGamesFirestoreDataSource {
   Stream<List<SavedGameEntity>> watchSaved();
   Future<void> save(String gameId);
   Future<void> unsave(String gameId);
+  Future<void> setDownloaded(String gameId, bool value);
 }
 
 class SavedGamesFirestoreDataSourceImpl implements SavedGamesFirestoreDataSource {
@@ -67,5 +68,16 @@ class SavedGamesFirestoreDataSourceImpl implements SavedGamesFirestoreDataSource
     final col = _col();
     if (col == null) throw AuthException('Not signed in');
     await col.doc(gameId).delete();
+  }
+
+  @override
+  Future<void> setDownloaded(String gameId, bool value) async {
+    final col = _col();
+    if (col == null) throw AuthException('Not signed in');
+    await col.doc(gameId).set({
+      'gameId': gameId,
+      'downloaded': value,
+      'savedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 }

@@ -23,7 +23,7 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   }
 
   Future<void> _decide() async {
-    await Future<void>.delayed(const Duration(milliseconds: 1100));
+    await Future<void>.delayed(const Duration(milliseconds: 1400));
     if (!mounted) return;
     final prefs = await SharedPreferences.getInstance();
     final seen = prefs.getBool('seenOnboarding') ?? false;
@@ -43,37 +43,36 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Center(
+      body: SafeArea(
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 104.w,
-              height: 104.w,
-              decoration: BoxDecoration(
-                color: AppColors.primaryGold.withValues(alpha: 0.14),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primaryGold.withValues(alpha: 0.18),
-                    blurRadius: 40,
-                    spreadRadius: 8,
-                  ),
-                ],
+            const Spacer(flex: 4),
+            const _SplashLogo(),
+            SizedBox(height: 26.h),
+            Text(
+              AppStrings.appName,
+              style: AppTextStyle.largeTitle().copyWith(
+                fontSize: 38.sp,
+                fontWeight: FontWeight.w800,
               ),
-              alignment: Alignment.center,
-              child: Icon(Icons.casino_rounded,
-                  color: AppColors.primaryGold, size: 56.sp),
             ),
-            SizedBox(height: 24.h),
-            Text(AppStrings.appName,
-                style: AppTextStyle.largeTitle().copyWith(fontSize: 38.sp)),
-            SizedBox(height: 6.h),
-            Text(AppStrings.tagline,
-                style: AppTextStyle.body(color: AppColors.textSecondary),
-                textAlign: TextAlign.center),
-            SizedBox(height: 36.h),
-            const _DotsLoader(),
+            SizedBox(height: 10.h),
+            Text(
+              AppStrings.tagline,
+              textAlign: TextAlign.center,
+              style: AppTextStyle.body(color: AppColors.textSecondary),
+            ),
+            const Spacer(flex: 4),
+            const _DotIndicator(),
+            const Spacer(flex: 2),
+            Text(
+              AppStrings.splashFooter,
+              style: AppTextStyle.helper().copyWith(
+                color: AppColors.textSecondary,
+                fontSize: 13.sp,
+              ),
+            ),
+            SizedBox(height: 16.h),
           ],
         ),
       ),
@@ -81,55 +80,126 @@ class _SplashPageState extends ConsumerState<SplashPage> {
   }
 }
 
-class _DotsLoader extends StatefulWidget {
-  const _DotsLoader();
-  @override
-  State<_DotsLoader> createState() => _DotsLoaderState();
-}
-
-class _DotsLoaderState extends State<_DotsLoader>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _c;
-
-  @override
-  void initState() {
-    super.initState();
-    _c = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
+/// Concentric soft-gold glow rings with a die in the center.
+class _SplashLogo extends StatelessWidget {
+  const _SplashLogo();
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _c,
-      builder: (_, __) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: List.generate(3, (i) {
-            final p = (_c.value - (i * 0.2)) % 1.0;
-            final t = (1 - (p - 0.5).abs() * 2).clamp(0.3, 1.0);
-            return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 4.w),
-              child: Container(
-                width: 8.w,
-                height: 8.w,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryGold.withValues(alpha: t),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            );
-          }),
+    return SizedBox(
+      width: 300.w,
+      height: 300.w,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          _ring(300, 0.05),
+          _ring(240, 0.07),
+          _ring(180, 0.10),
+          const _DieIcon(),
+        ],
+      ),
+    );
+  }
+
+  Widget _ring(double size, double alpha) {
+    return Container(
+      width: size.w,
+      height: size.w,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: AppColors.primaryGold.withValues(alpha: alpha),
+      ),
+    );
+  }
+}
+
+class _DieIcon extends StatelessWidget {
+  const _DieIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 108.w,
+      height: 108.w,
+      decoration: BoxDecoration(
+        color: AppColors.primaryGold,
+        borderRadius: BorderRadius.circular(26.r),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primaryGold.withValues(alpha: 0.35),
+            blurRadius: 28,
+            spreadRadius: 0,
+            offset: const Offset(0, 12),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(20.w),
+        child: const _FiveFaceDots(),
+      ),
+    );
+  }
+}
+
+/// The classic five-spot die face: dots at four corners + one in the center.
+class _FiveFaceDots extends StatelessWidget {
+  const _FiveFaceDots();
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, c) {
+        final dot = SizedBox(
+          width: c.maxWidth * 0.18,
+          height: c.maxWidth * 0.18,
+          child: const DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+          ),
+        );
+        return Stack(
+          children: [
+            Align(alignment: Alignment.topLeft, child: dot),
+            Align(alignment: Alignment.topRight, child: dot),
+            Align(alignment: Alignment.center, child: dot),
+            Align(alignment: Alignment.bottomLeft, child: dot),
+            Align(alignment: Alignment.bottomRight, child: dot),
+          ],
         );
       },
+    );
+  }
+}
+
+class _DotIndicator extends StatelessWidget {
+  const _DotIndicator();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _dot(false),
+        SizedBox(width: 10.w),
+        _dot(true),
+        SizedBox(width: 10.w),
+        _dot(false),
+      ],
+    );
+  }
+
+  Widget _dot(bool active) {
+    return Container(
+      width: 8.w,
+      height: 8.w,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: active
+            ? AppColors.primaryGold
+            : AppColors.primaryGold.withValues(alpha: 0.25),
+      ),
     );
   }
 }

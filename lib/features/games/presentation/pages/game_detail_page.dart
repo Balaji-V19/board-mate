@@ -10,6 +10,7 @@ import '../../../../config/constants/app_strings.dart';
 import '../../../../config/constants/app_textstyle.dart';
 import '../../../../core/widgets/bm_badge.dart';
 import '../../../../core/widgets/bm_button.dart';
+import '../../../../core/widgets/bm_die_icon.dart';
 import '../../../saved_games/presentation/providers/saved_games_notifier.dart';
 import '../../domain/entities/board_game_entity.dart';
 import '../providers/games_notifier.dart';
@@ -24,6 +25,7 @@ class GameDetailPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      extendBodyBehindAppBar: true,
       body: state.when(
         initial: () => const SizedBox.shrink(),
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -44,121 +46,52 @@ class _Loaded extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final accent = AppColors.categoryFor(
-        game.categories.isEmpty ? '' : game.categories.first);
-
     final saved = ref.watch(savedGamesNotifierProvider);
     final isSaved = saved.isSaved(game.id);
 
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          pinned: false,
-          backgroundColor: accent.withValues(alpha: 0.18),
-          expandedHeight: 360.h,
-          leading: _FrostedIcon(
-            icon: Icons.arrow_back_rounded,
-            onTap: () =>
-                context.canPop() ? context.pop() : context.go('/home'),
-          ),
-          actions: [
-            _FrostedIcon(
-              icon: isSaved ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-              tint: isSaved ? AppColors.primaryGold : null,
-              onTap: () => ref
-                  .read(savedGamesNotifierProvider)
-                  .toggle(game.id),
+    return Stack(
+      children: [
+        // Scrolling content (hero + sheet)
+        CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(child: _Hero(game: game, heightFactor: 0.50)),
+            SliverToBoxAdapter(
+              child: Transform.translate(
+                offset: Offset(0, -24.h),
+                child: _ContentSheet(game: game),
+              ),
             ),
-            SizedBox(width: 8.w),
-            _FrostedIcon(
-                icon: Icons.ios_share_rounded, onTap: () {}),
-            SizedBox(width: AppSpacing.screenHorizontal),
+            SliverToBoxAdapter(child: SizedBox(height: 120.h)),
           ],
-          flexibleSpace: FlexibleSpaceBar(
-            background: Container(
-              color: accent.withValues(alpha: 0.16),
-              alignment: Alignment.center,
-              child: game.imageUrl.isEmpty
-                  ? Icon(Icons.casino_rounded,
-                      color: accent, size: 160.sp)
-                  : CachedNetworkImage(
-                      imageUrl: game.imageUrl,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorWidget: (_, __, ___) => Icon(Icons.casino_rounded,
-                          color: accent, size: 160.sp),
-                    ),
-            ),
-          ),
         ),
-        SliverToBoxAdapter(
-          child: Transform.translate(
-            offset: Offset(0, -20.h),
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppColors.background,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(28.r),
-                  topRight: Radius.circular(28.r),
+        // Top action bar — over the hero
+        SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.screenHorizontal, vertical: 8.h),
+            child: Row(
+              children: [
+                _FrostedIcon(
+                  icon: Icons.chevron_left_rounded,
+                  onTap: () => context.canPop()
+                      ? context.pop()
+                      : context.go('/home'),
                 ),
-              ),
-              padding: EdgeInsets.fromLTRB(
-                  AppSpacing.screenHorizontal, 24.h, AppSpacing.screenHorizontal, 140.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 44.w,
-                      height: 4.h,
-                      decoration: BoxDecoration(
-                        color: AppColors.secondaryNavy.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  if (game.categories.isNotEmpty)
-                    BmBadge(
-                      label: game.categories.first,
-                      tone: BmBadgeTone.primary,
-                    ),
-                  SizedBox(height: 12.h),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Text(game.name,
-                            style: AppTextStyle.largeTitle()),
-                      ),
-                      if (game.rating != null)
-                        Row(children: [
-                          Icon(Icons.star_rounded,
-                              color: AppColors.primaryGold, size: 20.sp),
-                          SizedBox(width: 4.w),
-                          Text(game.rating!.toStringAsFixed(1),
-                              style: AppTextStyle.bodyStrong()),
-                        ]),
-                    ],
-                  ),
-                  SizedBox(height: 20.h),
-                  _MetaGrid(game: game),
-                  SizedBox(height: 28.h),
-                  Text(AppStrings.aboutThisGame,
-                      style: AppTextStyle.sectionTitle()),
-                  SizedBox(height: 10.h),
-                  Text(
-                    game.description.isEmpty ? game.objective : game.description,
-                    style: AppTextStyle.body(),
-                  ),
-                  SizedBox(height: 28.h),
-                  Text(AppStrings.whatYoullLearn,
-                      style: AppTextStyle.sectionTitle()),
-                  SizedBox(height: 10.h),
-                  _LearnList(),
-                ],
-              ),
+                const Spacer(),
+                _FrostedIcon(
+                  icon: Icons.ios_share_rounded,
+                  onTap: () {},
+                ),
+                SizedBox(width: 10.w),
+                _FrostedIcon(
+                  icon: isSaved
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border_rounded,
+                  tint: isSaved ? AppColors.primaryGold : null,
+                  onTap: () =>
+                      ref.read(savedGamesNotifierProvider).toggle(game.id),
+                ),
+              ],
             ),
           ),
         ),
@@ -167,96 +100,295 @@ class _Loaded extends ConsumerWidget {
   }
 }
 
-class _MetaGrid extends StatelessWidget {
-  const _MetaGrid({required this.game});
+// ── Hero ────────────────────────────────────────────────────────────────
+
+class _Hero extends StatelessWidget {
+  const _Hero({required this.game, required this.heightFactor});
+  final BoardGameEntity game;
+  final double heightFactor;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final accent = AppColors.categoryFor(
+        game.categories.isEmpty ? '' : game.categories.first);
+    final hasImage = game.imageUrl.isNotEmpty;
+
+    return SizedBox(
+      height: size.height * heightFactor,
+      width: double.infinity,
+      child: hasImage
+          ? _PhotoHero(game: game, accent: accent)
+          : _IconHero(game: game, accent: accent),
+    );
+  }
+}
+
+/// Full-bleed cover photo with the accent colour as a placeholder/background.
+class _PhotoHero extends StatelessWidget {
+  const _PhotoHero({required this.game, required this.accent});
+  final BoardGameEntity game;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: accent.withValues(alpha: 0.16),
+      child: CachedNetworkImage(
+        imageUrl: game.imageUrl,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        placeholder: (_, __) => const SizedBox.shrink(),
+        errorWidget: (_, __, ___) => _IconHero(game: game, accent: accent),
+      ),
+    );
+  }
+}
+
+/// Splash-style fallback for games without an image: soft ivory background,
+/// concentric circles in the category accent, and a saturated category-tinted
+/// BoardMate die in the centre. So each game shows the same brand mark in a
+/// different colour.
+class _IconHero extends StatelessWidget {
+  const _IconHero({required this.game, required this.accent});
+  final BoardGameEntity game;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [
+                  accent.withValues(alpha: 0.16),
+                  accent.withValues(alpha: 0.08),
+                  AppColors.background,
+                ],
+                stops: const [0, 0.4, 1],
+              ),
+            ),
+          ),
+        ),
+        // Overlapping circle rings
+        Positioned(
+          top: -40.h,
+          right: -40.w,
+          child: _ring(240.w, accent.withValues(alpha: 0.20)),
+        ),
+        Positioned(
+          top: 40.h,
+          right: -100.w,
+          child: _ring(200.w, accent.withValues(alpha: 0.14)),
+        ),
+        Positioned(
+          top: 80.h,
+          left: -70.w,
+          child: _ring(220.w, accent.withValues(alpha: 0.18)),
+        ),
+        Positioned(
+          bottom: -50.h,
+          left: 60.w,
+          child: _ring(160.w, accent.withValues(alpha: 0.12)),
+        ),
+        // Centered die in the category colour
+        Padding(
+          padding: EdgeInsets.only(top: 30.h),
+          child: BmDieIcon(
+            color: accent,
+            size: 160.sp,
+            withShadow: true,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _ring(double size, Color color) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    );
+  }
+}
+
+// ── Content sheet ────────────────────────────────────────────────────────
+
+class _ContentSheet extends StatelessWidget {
+  const _ContentSheet({required this.game});
   final BoardGameEntity game;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: _MetaCell(icon: Icons.people_rounded, label: AppStrings.players, value: game.playerRange)),
-        SizedBox(width: 10.w),
-        Expanded(child: _MetaCell(icon: Icons.schedule_rounded, label: AppStrings.duration, value: '${game.minutesRange} min')),
-        SizedBox(width: 10.w),
-        Expanded(child: _MetaCell(icon: Icons.diamond_outlined, label: AppStrings.difficulty, value: game.difficulty)),
-      ],
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(28.r),
+          topRight: Radius.circular(28.r),
+        ),
+      ),
+      padding: EdgeInsets.fromLTRB(
+          AppSpacing.screenHorizontal, 14.h, AppSpacing.screenHorizontal, 8.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Drag handle
+          Center(
+            child: Container(
+              width: 44.w,
+              height: 4.h,
+              decoration: BoxDecoration(
+                color: AppColors.secondaryNavy.withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(100),
+              ),
+            ),
+          ),
+          SizedBox(height: 18.h),
+          if (game.categories.isNotEmpty)
+            BmBadge(
+                label: game.categories.first, tone: BmBadgeTone.primary),
+          SizedBox(height: 14.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  game.name,
+                  style: AppTextStyle.largeTitle().copyWith(
+                      fontSize: 32.sp, fontWeight: FontWeight.w800),
+                  maxLines: 2,
+                ),
+              ),
+              if (game.rating != null)
+                Row(children: [
+                  Icon(Icons.star_rounded,
+                      color: AppColors.primaryGold, size: 22.sp),
+                  SizedBox(width: 4.w),
+                  Text(game.rating!.toStringAsFixed(1),
+                      style: AppTextStyle.bodyStrong()
+                          .copyWith(fontSize: 17.sp)),
+                ]),
+            ],
+          ),
+          SizedBox(height: 18.h),
+          _MetaRow(game: game),
+          SizedBox(height: 24.h),
+          Text(AppStrings.aboutThisGame,
+              style: AppTextStyle.sectionTitle()
+                  .copyWith(fontWeight: FontWeight.w800)),
+          SizedBox(height: 10.h),
+          Text(
+            game.description.isEmpty ? game.objective : game.description,
+            style: AppTextStyle.body(color: AppColors.textSecondary),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MetaRow extends StatelessWidget {
+  const _MetaRow({required this.game});
+  final BoardGameEntity game;
+
+  @override
+  Widget build(BuildContext context) {
+    final duration = game.minMinutes == game.maxMinutes
+        ? '${game.minMinutes} min'
+        : '${game.minMinutes}-${game.maxMinutes} min';
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 16.h),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceDefault,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: AppColors.border, width: 1),
+      ),
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            Expanded(
+              child: _MetaCell(
+                icon: Icons.groups_rounded,
+                iconColor: AppColors.primaryGold,
+                value: game.playerRange,
+                label: AppStrings.players,
+              ),
+            ),
+            _Divider(),
+            Expanded(
+              child: _MetaCell(
+                icon: Icons.timer_outlined,
+                iconColor: AppColors.secondaryNavy,
+                value: duration,
+                label: AppStrings.duration,
+              ),
+            ),
+            _Divider(),
+            Expanded(
+              child: _MetaCell(
+                icon: Icons.diamond_rounded,
+                iconColor: AppColors.primaryGold,
+                value: game.difficulty,
+                label: AppStrings.difficulty,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Divider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 1,
+      color: AppColors.primaryGold.withValues(alpha: 0.18),
     );
   }
 }
 
 class _MetaCell extends StatelessWidget {
-  const _MetaCell({required this.icon, required this.label, required this.value});
+  const _MetaCell({
+    required this.icon,
+    required this.iconColor,
+    required this.value,
+    required this.label,
+  });
   final IconData icon;
-  final String label;
+  final Color iconColor;
   final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 14.h),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceDefault,
-        borderRadius: BorderRadius.circular(AppSpacing.smallCardRadius),
-        border: Border.all(color: AppColors.border, width: 1),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: AppColors.primaryGold, size: 22.sp),
-          SizedBox(height: 8.h),
-          Text(value, style: AppTextStyle.bodyStrong(), maxLines: 1),
-          SizedBox(height: 2.h),
-          Text(label, style: AppTextStyle.helper()),
-        ],
-      ),
-    );
-  }
-}
-
-class _LearnList extends StatelessWidget {
-  static const _items = [
-    ('1', 'Game setup', '5 min'),
-    ('2', 'How to play', '8 min'),
-    ('3', 'Turn flow', '4 min'),
-    ('4', 'Quick reference', 'On demand'),
-  ];
+  final String label;
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        for (final (n, title, time) in _items) ...[
-          Container(
-            padding: EdgeInsets.all(14.w),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceDefault,
-              borderRadius: BorderRadius.circular(AppSpacing.smallCardRadius),
-              border: Border.all(color: AppColors.border, width: 1),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 32.w,
-                  height: 32.w,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryGold.withValues(alpha: 0.14),
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(n,
-                      style: AppTextStyle.bodyStrong(
-                          color: AppColors.primaryGold)),
-                ),
-                SizedBox(width: 12.w),
-                Expanded(
-                  child: Text(title, style: AppTextStyle.cardTitle()),
-                ),
-                Text(time, style: AppTextStyle.helper()),
-              ],
-            ),
-          ),
-          SizedBox(height: 10.h),
-        ],
+        Icon(icon, color: iconColor, size: 20.sp),
+        SizedBox(height: 6.h),
+        Text(
+          value,
+          style: AppTextStyle.bodyStrong().copyWith(fontSize: 17.sp),
+          maxLines: 1,
+        ),
+        SizedBox(height: 2.h),
+        Text(
+          label.toUpperCase(),
+          style: AppTextStyle.label(color: AppColors.textSecondary)
+              .copyWith(letterSpacing: 0.8, fontSize: 11.sp),
+        ),
       ],
     );
   }
@@ -270,21 +402,18 @@ class _FrostedIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
-      child: Material(
-        color: Colors.white.withValues(alpha: 0.85),
-        shape: const CircleBorder(),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onTap,
-          child: Container(
-            width: 40.w,
-            height: 40.w,
-            alignment: Alignment.center,
-            child: Icon(icon,
-                color: tint ?? AppColors.secondaryNavy, size: 20.sp),
-          ),
+    return Material(
+      color: Colors.white.withValues(alpha: 0.92),
+      borderRadius: BorderRadius.circular(12.r),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12.r),
+        child: Container(
+          width: 42.w,
+          height: 42.w,
+          alignment: Alignment.center,
+          child: Icon(icon,
+              color: tint ?? AppColors.secondaryNavy, size: 22.sp),
         ),
       ),
     );
@@ -312,12 +441,12 @@ class GameDetailBottomBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.fromLTRB(
-            AppSpacing.screenHorizontal, 8.h, AppSpacing.screenHorizontal, 16.h),
+        padding: EdgeInsets.fromLTRB(AppSpacing.screenHorizontal, 8.h,
+            AppSpacing.screenHorizontal, 16.h),
         child: BmButton(
           label: AppStrings.startLearning,
           icon: Icons.arrow_forward_rounded,
-          onPressed: () => context.push('/game/$gameId/setup'),
+          onPressed: () => context.push('/game/$gameId/learn'),
         ),
       ),
     );
