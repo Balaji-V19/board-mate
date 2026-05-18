@@ -12,11 +12,20 @@ import '../../../../config/constants/app_textstyle.dart';
 import '../../../../core/widgets/bm_button.dart';
 import '../providers/auth_notifier.dart';
 
-class SignInPage extends ConsumerWidget {
+enum _SignInMethod { google, apple }
+
+class SignInPage extends ConsumerStatefulWidget {
   const SignInPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SignInPage> createState() => _SignInPageState();
+}
+
+class _SignInPageState extends ConsumerState<SignInPage> {
+  _SignInMethod? _activeMethod;
+
+  @override
+  Widget build(BuildContext context) {
     final notifier = ref.watch(authNotifierProvider);
     final state = notifier.state;
     final loading =
@@ -61,8 +70,15 @@ class SignInPage extends ConsumerWidget {
               BmButton(
                 label: AppStrings.continueWithGoogle,
                 icon: Icons.login_rounded,
-                loading: loading,
-                onPressed: () => ref.read(authNotifierProvider).signInWithGoogle(),
+                loading: loading && _activeMethod == _SignInMethod.google,
+                onPressed: loading
+                    ? null
+                    : () async {
+                        setState(() => _activeMethod = _SignInMethod.google);
+                        await ref.read(authNotifierProvider).signInWithGoogle();
+                        if (!mounted) return;
+                        setState(() => _activeMethod = null);
+                      },
               ),
               if (!kIsWeb && Platform.isIOS) ...[
                 SizedBox(height: 10.h),
@@ -70,9 +86,15 @@ class SignInPage extends ConsumerWidget {
                   label: AppStrings.continueWithApple,
                   icon: Icons.apple,
                   variant: BmButtonVariant.secondary,
-                  loading: loading,
-                  onPressed: () =>
-                      ref.read(authNotifierProvider).signInWithApple(),
+                  loading: loading && _activeMethod == _SignInMethod.apple,
+                  onPressed: loading
+                      ? null
+                      : () async {
+                          setState(() => _activeMethod = _SignInMethod.apple);
+                          await ref.read(authNotifierProvider).signInWithApple();
+                          if (!mounted) return;
+                          setState(() => _activeMethod = null);
+                        },
                 ),
               ],
               SizedBox(height: 14.h),

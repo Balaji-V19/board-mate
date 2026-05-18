@@ -49,6 +49,15 @@ class AuthNotifier extends ChangeNotifier {
   }
 
   void _onAuthChanged(AppUser? user) {
+    final isAuthenticating =
+        _state.maybeWhen(authenticating: () => true, orElse: () => false);
+
+    // During OAuth handoff (Google/Apple sheet + app switch), Firebase can
+    // briefly emit `null` before the final signed-in user arrives.
+    // Keep the loading state until sign-in resolves to avoid showing idle
+    // login buttons mid-flow.
+    if (isAuthenticating && user == null) return;
+
     if (user == null) {
       _setState(const AuthState.unauthenticated());
     } else {

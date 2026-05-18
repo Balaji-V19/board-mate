@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -22,8 +24,7 @@ class ProgressFirestoreDataSourceImpl implements ProgressFirestoreDataSource {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
 
-  CollectionReference<Map<String, dynamic>>? _col() {
-    final uid = _auth.currentUser?.uid;
+  CollectionReference<Map<String, dynamic>>? _colForUid(String? uid) {
     if (uid == null) return null;
     return _firestore
         .collection(FirestoreCollections.users)
@@ -33,18 +34,49 @@ class ProgressFirestoreDataSourceImpl implements ProgressFirestoreDataSource {
 
   @override
   Stream<List<UserProgressEntity>> watchAll() {
-    final col = _col();
-    if (col == null) return const Stream.empty();
-    return col.snapshots().map((snap) {
-      return snap.docs
-          .map((d) => _fromDoc(d.id, d.data()))
-          .toList()
-        ..sort((a, b) => b.lastViewedAt.compareTo(a.lastViewedAt));
-    }).handleError((Object e) {
-      if (kDebugMode) {
-        debugPrint('watchProgress stream error: $e');
+    return Stream.multi((controller) {
+      StreamSubscription<List<UserProgressEntity>>? progressSub;
+
+      void bindForUid(String? uid) {
+        progressSub?.cancel();
+        final col = _colForUid(uid);
+        if (col == null) {
+          controller.add(const <UserProgressEntity>[]);
+          return;
+        }
+        progressSub = col.snapshots().map((snap) {
+          return snap.docs
+              .map((d) => _fromDoc(d.id, d.data()))
+              .toList()
+            ..sort((a, b) => b.lastViewedAt.compareTo(a.lastViewedAt));
+        }).listen(
+          controller.add,
+          onError: (Object e) {
+            if (kDebugMode) {
+              debugPrint('watchProgress stream error: $e');
+            }
+            controller.add(const <UserProgressEntity>[]);
+          },
+        );
       }
-      return <UserProgressEntity>[];
+
+      // Bind immediately for app restarts where user is already signed in.
+      bindForUid(_auth.currentUser?.uid);
+
+      final authSub = _auth.authStateChanges().listen(
+        (user) => bindForUid(user?.uid),
+        onError: (Object e) {
+          if (kDebugMode) {
+            debugPrint('authStateChanges error (progress): $e');
+          }
+          controller.add(const <UserProgressEntity>[]);
+        },
+      );
+
+      controller.onCancel = () async {
+        await progressSub?.cancel();
+        await authSub.cancel();
+      };
     });
   }
 
@@ -67,7 +99,7 @@ class ProgressFirestoreDataSourceImpl implements ProgressFirestoreDataSource {
 
   @override
   Future<void> touch(String gameId, GuideSection section) async {
-    final col = _col();
+    final col = _colForUid(_auth.currentUser?.uid);
     if (col == null) throw AuthException('Not signed in');
     await col.doc(gameId).set({
       'gameId': gameId,
@@ -78,7 +110,7 @@ class ProgressFirestoreDataSourceImpl implements ProgressFirestoreDataSource {
 
   @override
   Future<void> markComplete(String gameId, GuideSection section) async {
-    final col = _col();
+    final col = _colForUid(_auth.currentUser?.uid);
     if (col == null) throw AuthException('Not signed in');
     await col.doc(gameId).set({
       'gameId': gameId,

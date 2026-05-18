@@ -100,9 +100,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       throw AuthException('Apple did not return an identity token');
     }
 
+    final authorizationCode = appleCredential.authorizationCode;
+    if (authorizationCode.isEmpty) {
+      throw AuthException('Apple did not return an authorization code');
+    }
+
     final oauthCredential = OAuthProvider('apple.com').credential(
       idToken: idToken,
       rawNonce: rawNonce,
+      accessToken: authorizationCode,
     );
 
     final result = await _auth.signInWithCredential(oauthCredential);
