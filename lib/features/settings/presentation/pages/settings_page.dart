@@ -256,9 +256,162 @@ class SettingsPage extends ConsumerWidget {
                 ],
               ),
             ),
+            // Discreet danger-zone link — buried at the very bottom so casual
+            // users don't accidentally find it, but still discoverable for
+            // anyone who actually wants to leave.
+            SizedBox(height: 28.h),
+            const _DeleteAccountLink(),
+            SizedBox(height: 12.h),
           ],
         ),
       ),
+    );
+  }
+}
+
+// ─── Delete account link + confirmation flow ────────────────────────────
+
+class _DeleteAccountLink extends ConsumerStatefulWidget {
+  const _DeleteAccountLink();
+
+  @override
+  ConsumerState<_DeleteAccountLink> createState() =>
+      _DeleteAccountLinkState();
+}
+
+class _DeleteAccountLinkState extends ConsumerState<_DeleteAccountLink> {
+  bool _busy = false;
+
+  Future<void> _onTap() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (_) => const _DeleteAccountDialog(),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _busy = true);
+    final result =
+        await ref.read(authNotifierProvider).deleteAccount();
+    if (!mounted) return;
+    setState(() => _busy = false);
+
+    result.fold(
+      (failure) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text('Couldn\'t delete account: ${failure.message}'),
+          ),
+        );
+      },
+      (_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Account deleted.')),
+        );
+        context.go('/sign-in');
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: TextButton(
+        onPressed: _busy ? null : _onTap,
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.textSecondary,
+          padding:
+              EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+        ),
+        child: _busy
+            ? SizedBox(
+                width: 16.w,
+                height: 16.w,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor:
+                      AlwaysStoppedAnimation(AppColors.textSecondary),
+                ),
+              )
+            : Text(
+                'Delete my account',
+                style: AppTextStyle.helper(
+                  color: AppColors.textSecondary,
+                ).copyWith(
+                  fontSize: 13.sp,
+                  decoration: TextDecoration.underline,
+                  decorationColor:
+                      AppColors.textSecondary.withValues(alpha: 0.5),
+                ),
+              ),
+      ),
+    );
+  }
+}
+
+class _DeleteAccountDialog extends StatelessWidget {
+  const _DeleteAccountDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: AppColors.surfaceDefault,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      titlePadding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 8.h),
+      contentPadding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 8.h),
+      actionsPadding: EdgeInsets.fromLTRB(12.w, 0, 12.w, 12.h),
+      title: Row(
+        children: [
+          Container(
+            width: 36.w,
+            height: 36.w,
+            decoration: BoxDecoration(
+              color: AppColors.error.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.delete_outline_rounded,
+              color: AppColors.error,
+              size: 20.sp,
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Text(
+              'Delete your account?',
+              style: AppTextStyle.cardTitle().copyWith(
+                fontSize: 17.sp,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+      content: Text(
+        'This permanently deletes your BoardMate account, saved games, '
+        'and learning progress. It can\'t be undone.',
+        style: AppTextStyle.body(color: AppColors.textSecondary)
+            .copyWith(fontSize: 14.sp, height: 20 / 14),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.secondaryNavy,
+          ),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          style: TextButton.styleFrom(
+            foregroundColor: AppColors.error,
+          ),
+          child: const Text('Delete account'),
+        ),
+      ],
     );
   }
 }

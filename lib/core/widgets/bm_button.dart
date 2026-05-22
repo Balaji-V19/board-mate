@@ -14,6 +14,7 @@ class BmButton extends StatelessWidget {
     required this.onPressed,
     this.variant = BmButtonVariant.primary,
     this.icon,
+    this.leading,
     this.expand = true,
     this.loading = false,
   });
@@ -22,6 +23,12 @@ class BmButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final BmButtonVariant variant;
   final IconData? icon;
+
+  /// Optional widget rendered to the left of the label instead of [icon].
+  /// Useful for brand glyphs that aren't part of the Material icon set
+  /// (e.g. the Google "G" logo as an SVG).
+  final Widget? leading;
+
   final bool expand;
   final bool loading;
 
@@ -76,7 +83,10 @@ class BmButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
               children: [
-                if (icon != null) ...[
+                if (leading != null) ...[
+                  leading!,
+                  SizedBox(width: 10.w),
+                ] else if (icon != null) ...[
                   Icon(icon, color: fg, size: 18.sp),
                   SizedBox(width: 8.w),
                 ],

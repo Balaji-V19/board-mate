@@ -50,6 +50,9 @@ dependencies:
   # Video playback (mascot overlay)
   video_player: ^2.9.2
 
+  # SVG asset rendering (brand icons like the Google "G")
+  flutter_svg: ^2.0.10
+
   # Opening external URLs (privacy policy, terms, support links)
   url_launcher: ^6.3.1
 
@@ -89,3 +92,4 @@ flutter:
     - assets/seed/
     - assets/illustrations/
     - assets/videos/
+    - assets/icons/

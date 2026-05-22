@@ -18,6 +18,16 @@ abstract class AuthRemoteDataSource {
   Future<AppUser> signInWithGoogle();
   Future<AppUser> signInWithApple();
   Future<void> signOut();
+
+  /// Permanently delete the signed-in account:
+  /// 1. Snapshot `users/{uid}` and copy it into `deleted_users/{uid}` with
+  ///    deletion metadata (provider, deletedAt).
+  /// 2. Remove the `users/{uid}` document.
+  /// 3. Delete the Firebase Auth user (re-authenticates first if the
+  ///    Firebase session is too old).
+  /// 4. Sign out local OAuth providers (Google) so the device session is
+  ///    cleared.
+  Future<void> deleteAccount();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -167,6 +177,184 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> signOut() async {
     await _googleSignIn.signOut();
     await _auth.signOut();
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw AuthException('Not signed in.');
+    }
+
+    final providerId = user.providerData.isNotEmpty
+        ? user.providerData.first.providerId
+        : null;
+
+    // 1. Snapshot the user's profile doc. Read failure is tolerated — the
+    //    archive will still capture the Firebase Auth fields below.
+    final userRef =
+        _firestore.collection(FirestoreCollections.users).doc(user.uid);
+    Map<String, dynamic> snapshot = const {};
+    try {
+      final snap = await userRef.get();
+      if (snap.exists) snapshot = snap.data() ?? const {};
+    } catch (e) {
+      if (kDebugMode) debugPrint('deleteAccount: snapshot read skipped: $e');
+    }
+
+    // 2. Archive to deleted_users/{uid}. This is the *source of truth* for
+    //    the deletion record — if it fails (typically Firestore rules not
+    //    yet deployed), we abort with a clear, actionable error rather
+    //    than silently destroying the account without a tombstone.
+    try {
+      await _firestore
+          .collection(FirestoreCollections.deletedUsers)
+          .doc(user.uid)
+          .set(<String, dynamic>{
+        ...snapshot,
+        'uid': user.uid,
+        'email': user.email ?? snapshot['email'] ?? '',
+        'displayName': user.displayName ?? snapshot['displayName'] ?? '',
+        'photoUrl': user.photoURL ?? snapshot['photoUrl'] ?? '',
+        'providerId': providerId,
+        'deletedAt': FieldValue.serverTimestamp(),
+      });
+    } on FirebaseException catch (e) {
+      if (e.code == 'permission-denied') {
+        throw AuthException(
+          "Couldn't archive your account. Deploy the latest "
+          'firestore.rules so writes to deleted_users/{uid} are '
+          'allowed for the authenticated user, then try again.',
+        );
+      }
+      throw AuthException('Failed to archive account: ${e.message ?? e.code}');
+    }
+
+    // 3. Cascade-delete subcollections under users/{uid}. Firestore won't
+    //    do this for us when we delete the parent doc, so we walk each
+    //    known subcollection and batch-delete its contents while the user
+    //    is still authenticated (rules: /users/{uid}/{path=**}).
+    for (final sub in const [
+      FirestoreCollections.saved,
+      FirestoreCollections.progress,
+      FirestoreCollections.recents,
+    ]) {
+      try {
+        await _purgeUserSubcollection(user.uid, sub);
+      } on FirebaseException catch (e) {
+        throw AuthException(
+          "Couldn't clear $sub data: ${e.message ?? e.code}",
+        );
+      }
+    }
+
+    // 4. Remove the live user doc itself.
+    try {
+      await userRef.delete();
+    } on FirebaseException catch (e) {
+      if (e.code != 'not-found') {
+        throw AuthException(
+          "Couldn't delete profile doc: ${e.message ?? e.code}",
+        );
+      }
+    }
+
+    // 5. Delete the Firebase Auth user. If the session is older than a few
+    //    minutes Firebase requires a fresh re-auth before destructive ops.
+    try {
+      await user.delete();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        await _reauthenticate(user, providerId);
+        await user.delete();
+      } else {
+        throw AuthException(e.message ?? 'Failed to delete account.');
+      }
+    }
+
+    // 6. Clear the OAuth session on this device so the next "Sign in with
+    //    Google" actually opens the picker instead of silently re-using
+    //    the disconnected account. Best-effort — local cleanup only.
+    try {
+      await _googleSignIn.signOut();
+    } catch (_) {}
+  }
+
+  /// Page through `users/{uid}/{name}/*` in 500-doc batches and delete each
+  /// document. Returns when the subcollection is empty.
+  ///
+  /// Firestore's recommended client-side cascade pattern: list, batch
+  /// delete, repeat. Per-batch limit is 500 writes. Saved/progress data is
+  /// small in practice (handful of docs), so this usually completes in
+  /// one round-trip.
+  Future<void> _purgeUserSubcollection(String uid, String name) async {
+    final col = _firestore
+        .collection(FirestoreCollections.users)
+        .doc(uid)
+        .collection(name);
+    while (true) {
+      final snap = await col.limit(500).get();
+      if (snap.docs.isEmpty) return;
+      final batch = _firestore.batch();
+      for (final doc in snap.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+      if (snap.docs.length < 500) return;
+    }
+  }
+
+  /// Re-runs the OAuth flow for [providerId] and re-authenticates [user]
+  /// with the resulting credential, satisfying Firebase's "recent login"
+  /// requirement for destructive operations.
+  Future<void> _reauthenticate(User user, String? providerId) async {
+    switch (providerId) {
+      case 'google.com':
+        final googleUser = await _googleSignIn.signIn();
+        if (googleUser == null) {
+          throw AuthException('Re-authentication cancelled.');
+        }
+        final googleAuth = await googleUser.authentication;
+        final cred = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        await user.reauthenticateWithCredential(cred);
+        return;
+      case 'apple.com':
+        final rawNonce = _generateNonce();
+        final hashedNonce = _sha256ofString(rawNonce);
+        final AuthorizationCredentialAppleID appleCredential;
+        try {
+          appleCredential = await SignInWithApple.getAppleIDCredential(
+            scopes: const [
+              AppleIDAuthorizationScopes.email,
+              AppleIDAuthorizationScopes.fullName,
+            ],
+            nonce: hashedNonce,
+          );
+        } on SignInWithAppleAuthorizationException catch (e) {
+          if (e.code == AuthorizationErrorCode.canceled) {
+            throw AuthException('Re-authentication cancelled.');
+          }
+          throw AuthException(e.message);
+        }
+        final idToken = appleCredential.identityToken;
+        if (idToken == null) {
+          throw AuthException('Apple did not return an identity token.');
+        }
+        final cred = OAuthProvider('apple.com').credential(
+          idToken: idToken,
+          rawNonce: rawNonce,
+          accessToken: appleCredential.authorizationCode,
+        );
+        await user.reauthenticateWithCredential(cred);
+        return;
+      default:
+        throw AuthException(
+          'Please sign out and back in, then try deleting again.',
+        );
+    }
   }
 }
 

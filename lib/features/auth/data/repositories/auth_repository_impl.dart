@@ -55,4 +55,18 @@ class AuthRepositoryImpl implements AuthRepository {
       return left(UnknownFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> deleteAccount() async {
+    try {
+      await _remote.deleteAccount();
+      return right(null);
+    } on AuthException catch (e) {
+      return left(AuthFailure(e.message));
+    } on fb.FirebaseAuthException catch (e) {
+      return left(AuthFailure(e.message ?? 'Failed to delete account'));
+    } catch (e) {
+      return left(UnknownFailure(e.toString()));
+    }
+  }
 }

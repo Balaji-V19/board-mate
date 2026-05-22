@@ -9,6 +9,7 @@ import 'core/network/api_client.dart';
 import 'features/auth/data/datasources/auth_remote_datasource.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
+import 'features/auth/domain/usecases/delete_account.dart';
 import 'features/auth/domain/usecases/sign_in_with_apple.dart';
 import 'features/auth/domain/usecases/sign_in_with_google.dart';
 import 'features/auth/domain/usecases/sign_out.dart';
@@ -66,11 +67,13 @@ Future<void> initializeDependencies() async {
   sl.registerLazySingleton(() => SignInWithAppleUseCase(sl<AuthRepository>()));
   sl.registerLazySingleton(() => SignOutUseCase(sl<AuthRepository>()));
   sl.registerLazySingleton(() => WatchAuthStateUseCase(sl<AuthRepository>()));
+  sl.registerLazySingleton(() => DeleteAccountUseCase(sl<AuthRepository>()));
   sl.registerLazySingleton<AuthNotifier>(() => AuthNotifier(
         watchAuthState: sl(),
         signInWithGoogle: sl(),
         signInWithApple: sl(),
         signOut: sl(),
+        deleteAccount: sl(),
       ));
 
   // ── games ──

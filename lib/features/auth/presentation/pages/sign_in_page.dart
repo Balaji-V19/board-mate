@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../config/constants/app_colors.dart';
 import '../../../../config/constants/app_spacing.dart';
@@ -69,7 +70,7 @@ class _SignInPageState extends ConsumerState<SignInPage> {
               ],
               BmButton(
                 label: AppStrings.continueWithGoogle,
-                icon: Icons.login_rounded,
+                leading: const _GoogleGlyph(),
                 loading: loading && _activeMethod == _SignInMethod.google,
                 onPressed: loading
                     ? null
@@ -129,6 +130,30 @@ class _Logo extends StatelessWidget {
           color: AppColors.primaryGold,
           size: 54.sp,
         ),
+      ),
+    );
+  }
+}
+
+/// The official 4-color Google "G" rendered from an SVG asset and wrapped
+/// in a white pill so it stays legible on the gold primary button.
+class _GoogleGlyph extends StatelessWidget {
+  const _GoogleGlyph();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 26.w,
+      height: 26.w,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: SvgPicture.asset(
+        'assets/icons/google_g.svg',
+        width: 16.w,
+        height: 16.w,
       ),
     );
   }
