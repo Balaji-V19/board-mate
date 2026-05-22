@@ -16,9 +16,10 @@ MascotRouteDecision mascotForLocation(String location) {
     );
   }
   if (path == '/onboarding') {
+    // Onboarding owns its mascot per-slide so the global host stays silent.
     return const MascotRouteDecision(
       mood: MascotMood.welcome,
-      placement: MascotPlacement.overlayHero,
+      placement: MascotPlacement.inline,
     );
   }
   if (path == '/sign-in') {
