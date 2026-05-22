@@ -5,15 +5,15 @@ import '../../domain/entities/mascot_mood.dart';
 import '../providers/mascot_notifier.dart';
 import 'mascot_video_view.dart';
 
-/// Drop-in mascot widget for pages that want to embed the mascot inline (so it
-/// scrolls with content) instead of being painted by the global host.
+/// Drop-in mascot widget for pages that want to embed the mascot inline.
 ///
-/// - Sets the desired [mood] on mount and whenever it changes.
-/// - Renders the transparent video with no decoration / no background.
-/// - Taps on the mascot are intentionally no-ops — the mascot is decorative,
-///   not interactive.
-/// - If anything goes wrong (asset missing, init failure) it silently renders
-///   a same-sized empty box so layout is undisturbed.
+/// - Calls `setMood(widget.mood)` on `initState` and whenever the [mood]
+///   prop changes, so a page can land on the screen and immediately show
+///   the right mascot even if the [_MascotOverlay]'s router listener
+///   hasn't fired yet.
+/// - Renders the video only when the notifier's current mood matches —
+///   keeps inline mascots on hidden shell branches from showing through
+///   when the active branch is on a different mood.
 class MascotInline extends ConsumerStatefulWidget {
   const MascotInline({
     super.key,

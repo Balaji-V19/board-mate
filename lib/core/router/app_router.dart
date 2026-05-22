@@ -28,7 +28,16 @@ final _shellSavedKey = GlobalKey<NavigatorState>();
 final _shellSettingsKey = GlobalKey<NavigatorState>();
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final auth = ref.watch(authNotifierProvider);
+  // Use ref.read (not watch) so this provider is built exactly once. Auth
+  // changes propagate via `refreshListenable: auth` below — GoRouter
+  // re-evaluates redirects without us needing to recreate the whole router.
+  //
+  // Subscribing here used to rebuild routerProvider on every auth notify,
+  // which spawned a fresh GoRouter sharing the same global navigator keys
+  // as the old one — two routers briefly coexisted in the tree, each
+  // rendering the home page (and its mascot), which is why you'd see two
+  // mascots on every screen right after login.
+  final auth = ref.read(authNotifierProvider);
 
   return GoRouter(
     navigatorKey: _rootKey,
@@ -36,6 +45,15 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: auth,
     redirect: (context, state) {
       final loc = state.matchedLocation;
+
+      // Once the user is signed in, get them off the auth screen. Previously
+      // this happened "for free" because the router was being rebuilt on
+      // every auth change and bouncing through /splash's own routing logic;
+      // now the router is a singleton, so we need an explicit redirect.
+      if (auth.isAuthenticated && loc == '/sign-in') {
+        return '/home';
+      }
+
       final publicRoutes = {'/splash', '/onboarding', '/sign-in'};
       if (publicRoutes.contains(loc)) return null;
       if (!auth.isAuthenticated) return '/sign-in';

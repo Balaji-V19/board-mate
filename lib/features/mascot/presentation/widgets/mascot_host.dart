@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/app_router.dart';
 import '../../domain/entities/mascot_mood.dart';
@@ -9,14 +10,23 @@ import '../providers/mascot_route_mapping.dart';
 import 'mascot_bubble.dart';
 import 'mascot_hero.dart';
 
-/// Wraps the entire navigator. Looks up the current route on every build to
-/// decide the mascot's [MascotPlacement] and [MascotMood], so the overlay
-/// painted by the host always matches the active route — no state lag where
-/// the previous route's overlay lingers for a frame after navigation.
+/// Top-level mascot coordinator. Wraps the entire navigator and is composed
+/// of two cleanly separated pieces:
 ///
-/// For [MascotPlacement.overlayHero] and [MascotPlacement.overlayBubble], the
-/// host paints the mascot itself. For [MascotPlacement.inline] the host stays
-/// silent and the page renders a `MascotInline` in its own layout.
+///   1. [MascotHost] itself — only forwards app-lifecycle events (pause/
+///      resume on background/foreground) to the [MascotNotifier]. It never
+///      reacts to route changes itself, so its widget can never be dirtied
+///      mid-build by a router notification (which previously produced the
+///      `!_dirty` assertion).
+///   2. [_MascotOverlay] — a sibling layer inside a [Stack] that owns the
+///      router-delegate listener, schedules mood updates, and paints the
+///      overlay mascot for `overlayBubble` / `overlayHero` routes. It
+///      rebuilds via its own `setState`, but only the overlay subtree is
+///      affected; `widget.child` (the navigator subtree) is preserved.
+///
+/// Routes with `MascotPlacement.inline` render their own `MascotInline`
+/// inside the page tree; the overlay layer stays silent on those routes so
+/// there's never a duplicate mascot.
 class MascotHost extends ConsumerStatefulWidget {
   const MascotHost({super.key, required this.child});
 
@@ -28,9 +38,6 @@ class MascotHost extends ConsumerStatefulWidget {
 
 class _MascotHostState extends ConsumerState<MascotHost>
     with WidgetsBindingObserver {
-  String? _lastLocation;
-  bool _moodRefreshScheduled = false;
-
   @override
   void initState() {
     super.initState();
@@ -48,32 +55,101 @@ class _MascotHostState extends ConsumerState<MascotHost>
     super.dispose();
   }
 
-  /// Schedule a single setMood() in the next frame. Coalesces back-to-back
-  /// builds (e.g. when the notifier itself causes a rebuild) so we don't
-  /// thrash the controller and so the synchronous notifyListeners inside
-  /// `setMood` can never fire during the current build pass.
-  void _scheduleMoodUpdate(MascotMood? mood) {
-    if (_moodRefreshScheduled) return;
-    _moodRefreshScheduled = true;
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        widget.child,
+        const _MascotOverlay(),
+      ],
+    );
+  }
+}
+
+// ─── Overlay layer ──────────────────────────────────────────────────────
+
+class _MascotOverlay extends ConsumerStatefulWidget {
+  const _MascotOverlay();
+
+  @override
+  ConsumerState<_MascotOverlay> createState() => _MascotOverlayState();
+}
+
+class _MascotOverlayState extends ConsumerState<_MascotOverlay> {
+  GoRouter? _router;
+  String? _lastLocation;
+  bool _scheduled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _attach());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Re-attach defensively — `_attach` is idempotent for the same router
+    // instance, but if something ever does cause the GoRouter singleton to
+    // be replaced (auth flow tweaks, hot reload, etc.) this ensures we
+    // re-subscribe immediately instead of going deaf to route changes,
+    // which is what would manifest as "the revealed page has no mascot
+    // after going back".
+    _attach();
+  }
+
+  void _attach() {
+    if (!mounted) return;
+    final router = ref.read(routerProvider);
+    if (identical(router, _router)) return;
+    _router?.routerDelegate.removeListener(_onRouterChanged);
+    _router = router;
+    _router!.routerDelegate.addListener(_onRouterChanged);
+    // Sync initial route → mood.
+    _onRouterChanged();
+  }
+
+  /// Router listener. Never mutates state synchronously — defers everything
+  /// (setMood + setState) to a post-frame so we can't dirty this widget
+  /// during a parent's build pass. Coalesces back-to-back notifications.
+  void _onRouterChanged() {
+    if (_scheduled) return;
+    _scheduled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _moodRefreshScheduled = false;
-      if (!mounted) return;
-      ref.read(mascotNotifierProvider).setMood(mood);
+      _scheduled = false;
+      if (!mounted || _router == null) return;
+      final location =
+          _router!.routerDelegate.currentConfiguration.uri.toString();
+      final changed = location != _lastLocation;
+      if (changed) {
+        _lastLocation = location;
+        final decision = mascotForLocation(location);
+        ref.read(mascotNotifierProvider).setMood(decision.mood);
+        // Trigger a rebuild so the overlay reflects the new route. (Inline
+        // routes will collapse to SizedBox.shrink; overlay routes will
+        // paint MascotBubble / MascotHero.)
+        setState(() {});
+      }
     });
   }
 
   @override
+  void dispose() {
+    _router?.routerDelegate.removeListener(_onRouterChanged);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Compute placement + mood from the router state at build time so the
-    // overlay always reflects the route being painted right now.
-    final router = ref.read(routerProvider);
+    final router = _router;
+    if (router == null) return const SizedBox.shrink();
     final location =
         router.routerDelegate.currentConfiguration.uri.toString();
     final decision = mascotForLocation(location);
 
-    if (location != _lastLocation) {
-      _lastLocation = location;
-      _scheduleMoodUpdate(decision.mood);
+    // Inline placement: the page owns the rendering, stay completely silent.
+    if (decision.placement == MascotPlacement.inline) {
+      return const SizedBox.shrink();
     }
 
     final notifier = ref.watch(mascotNotifierProvider);
@@ -81,31 +157,22 @@ class _MascotHostState extends ConsumerState<MascotHost>
         !notifier.hasError &&
         notifier.currentMood != null &&
         notifier.controller != null;
+    if (!hasMascot) return const SizedBox.shrink();
 
-    // For inline placement the page owns the rendering — host stays silent.
-    if (!hasMascot || decision.placement == MascotPlacement.inline) {
-      return widget.child;
+    if (decision.placement == MascotPlacement.overlayHero) {
+      return Positioned(
+        top: MediaQuery.of(context).padding.top + 24.h,
+        left: 0,
+        right: 0,
+        child: Center(
+          child: MascotHero(controller: notifier.controller),
+        ),
+      );
     }
-
-    return Stack(
-      children: [
-        widget.child,
-        if (decision.placement == MascotPlacement.overlayHero)
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 24.h,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: MascotHero(controller: notifier.controller),
-            ),
-          )
-        else
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 8.h,
-            right: 12.w,
-            child: MascotBubble(controller: notifier.controller),
-          ),
-      ],
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 8.h,
+      right: 12.w,
+      child: MascotBubble(controller: notifier.controller),
     );
   }
 }

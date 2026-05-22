@@ -9,6 +9,8 @@ import '../../../../config/constants/app_textstyle.dart';
 import '../../../../core/widgets/bm_chip.dart';
 import '../../../../core/widgets/bm_game_card.dart';
 import '../../../games/presentation/providers/games_notifier.dart';
+import '../../../mascot/domain/entities/mascot_mood.dart';
+import '../../../mascot/presentation/widgets/mascot_inline.dart';
 import '../../../saved_games/presentation/providers/saved_games_notifier.dart';
 
 const _categories = ['All', 'Strategy', 'Family', 'Cards', 'Party', 'Co-op'];
@@ -75,15 +77,31 @@ class _BrowsePageState extends ConsumerState<BrowsePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Browse',
-                      style: AppTextStyle.largeTitle().copyWith(
-                          fontWeight: FontWeight.w800, fontSize: 32.sp)),
-                  SizedBox(height: 2.h),
-                  Text(
-                    count == null
-                        ? 'Loading games…'
-                        : '$count game${count == 1 ? '' : 's'} available to learn',
-                    style: AppTextStyle.helper(),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('Browse',
+                                style: AppTextStyle.largeTitle().copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 32.sp)),
+                            SizedBox(height: 2.h),
+                            Text(
+                              count == null
+                                  ? 'Loading games…'
+                                  : '$count game${count == 1 ? '' : 's'} available to learn',
+                              style: AppTextStyle.helper(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 12.w),
+                      MascotInline(mood: MascotMood.curious, size: 72.w),
+                    ],
                   ),
                   SizedBox(height: 14.h),
                   _SearchBar(

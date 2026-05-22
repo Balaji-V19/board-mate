@@ -23,8 +23,11 @@ MascotRouteDecision mascotForLocation(String location) {
     );
   }
   if (path == '/sign-in') {
+    // Sign-in screen is intentionally mascot-free — let the focus sit on
+    // the auth buttons. mood: null tells the notifier to tear down any
+    // controller from the previous route.
     return const MascotRouteDecision(
-      mood: MascotMood.welcome,
+      mood: null,
       placement: MascotPlacement.overlayBubble,
     );
   }
@@ -36,9 +39,11 @@ MascotRouteDecision mascotForLocation(String location) {
     );
   }
   if (path == '/browse') {
+    // Browse renders its own MascotInline in the header — inline so the
+    // overlay layer doesn't duplicate it.
     return const MascotRouteDecision(
       mood: MascotMood.curious,
-      placement: MascotPlacement.overlayBubble,
+      placement: MascotPlacement.inline,
     );
   }
   if (path == '/saved') {
