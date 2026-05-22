@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "433731039140-su97r165btr4n3fuasg0ce7l1olcbe2b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.balaji.boardmate",
+            "certificate_hash": "00519d33badd9a7fb3ead3424c779f725b0ec81b"
+          }
+        },
+        {
           "client_id": "433731039140-v3ooarme9ee0lviceh1li6rv6hqp343i.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
