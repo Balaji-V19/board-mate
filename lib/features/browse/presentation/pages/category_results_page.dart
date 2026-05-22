@@ -70,20 +70,27 @@ class _CategoryResultsPageState extends ConsumerState<CategoryResultsPage> {
                     ],
                   ),
                   SizedBox(height: 14.h),
-                  Row(
-                    children: [
-                      for (var i = 0; i < _difficulties.length; i++) ...[
-                        BmChip(
-                          label: _difficulties[i],
-                          selected: _difficulty == _difficulties[i],
-                          onTap: () => setState(() {
-                            _difficulty = _difficulties[i];
-                          }),
-                        ),
-                        if (i != _difficulties.length - 1)
-                          SizedBox(width: 8.w),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    // Cancel the parent's horizontal padding inside the
+                    // scrollable area so the first chip sits flush-left and
+                    // the strip can scroll without clipping at the edge.
+                    padding: EdgeInsets.symmetric(vertical: 2.h),
+                    child: Row(
+                      children: [
+                        for (var i = 0; i < _difficulties.length; i++) ...[
+                          BmChip(
+                            label: _difficulties[i],
+                            selected: _difficulty == _difficulties[i],
+                            onTap: () => setState(() {
+                              _difficulty = _difficulties[i];
+                            }),
+                          ),
+                          if (i != _difficulties.length - 1)
+                            SizedBox(width: 8.w),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ],
               ),
@@ -119,7 +126,10 @@ class _CategoryResultsPageState extends ConsumerState<CategoryResultsPage> {
                           crossAxisCount: 2,
                           mainAxisSpacing: 14.h,
                           crossAxisSpacing: 12.w,
-                          childAspectRatio: 170 / 240,
+                          // Slightly taller than 170/240 so the bottom meta
+                          // row sits comfortably below the title block on
+                          // every device pixel ratio.
+                          childAspectRatio: 170 / 246,
                         ),
                         itemCount: filtered.length,
                         itemBuilder: (innerCtx, i) {

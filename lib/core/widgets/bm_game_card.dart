@@ -347,53 +347,96 @@ class BmGameCardGrid extends StatelessWidget {
                   ],
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.all(12.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      game.name,
-                      style: AppTextStyle.cardTitle().copyWith(
-                          fontWeight: FontWeight.w700, fontSize: 17.sp),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 2.h),
-                    Text('${game.playerRange} players',
-                        style: AppTextStyle.helper()),
-                    SizedBox(height: 10.h),
-                    Row(
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: _difficultyColor(game.difficulty),
-                            shape: BoxShape.circle,
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(12.w, 10.h, 12.w, 10.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            game.name,
+                            style: AppTextStyle.cardTitle().copyWith(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16.sp,
+                              height: 20 / 16,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
-                        SizedBox(width: 6.w),
-                        Text(
-                          game.difficulty,
-                          style: AppTextStyle.helper(
-                              color: _difficultyColor(game.difficulty)),
-                        ),
-                        SizedBox(width: 12.w),
-                        Icon(Icons.schedule_rounded,
-                            size: 14.sp, color: AppColors.textSecondary),
-                        SizedBox(width: 4.w),
-                        Text(_duration(game),
-                            style: AppTextStyle.helper()),
-                      ],
-                    ),
-                  ],
+                          SizedBox(height: 2.h),
+                          Text(
+                            '${game.playerRange} players',
+                            style: AppTextStyle.helper()
+                                .copyWith(fontSize: 12.sp, height: 16 / 12),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                      _MetaRow(game: game),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Bottom meta row of [BmGameCardGrid] — difficulty + duration on a single
+/// line that's overflow-safe regardless of how long either value is. Uses a
+/// `RichText` so the difficulty word can be tinted while the duration stays
+/// in the neutral helper color, and `TextOverflow.ellipsis` on the duration
+/// segment so very long ranges shrink gracefully.
+class _MetaRow extends StatelessWidget {
+  const _MetaRow({required this.game});
+  final BoardGameEntity game;
+
+  @override
+  Widget build(BuildContext context) {
+    final diffColor = _difficultyColor(game.difficulty);
+    final helper = AppTextStyle.helper().copyWith(fontSize: 12.sp);
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 8.w,
+          height: 8.w,
+          decoration: BoxDecoration(color: diffColor, shape: BoxShape.circle),
+        ),
+        SizedBox(width: 6.w),
+        Flexible(
+          child: Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: game.difficulty,
+                  style: helper.copyWith(
+                    color: diffColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                TextSpan(
+                  text: '  ·  ',
+                  style: helper.copyWith(
+                    color: AppColors.textSecondary.withValues(alpha: 0.55),
+                  ),
+                ),
+                TextSpan(text: _duration(game), style: helper),
+              ],
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }

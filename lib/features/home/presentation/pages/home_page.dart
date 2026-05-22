@@ -14,6 +14,8 @@ import '../../../games/domain/entities/user_progress_entity.dart';
 import '../../../games/presentation/providers/games_notifier.dart';
 import '../../../games/presentation/providers/games_state.dart';
 import '../../../games/presentation/providers/progress_notifier.dart';
+import '../../../mascot/domain/entities/mascot_mood.dart';
+import '../../../mascot/presentation/widgets/mascot_inline.dart';
 import '../widgets/continue_learning_card.dart';
 
 class HomePage extends ConsumerWidget {
@@ -127,52 +129,7 @@ class _HomeHeader extends StatelessWidget {
           ),
         ),
         SizedBox(width: 12.w),
-        const _NotificationButton(),
-      ],
-    );
-  }
-}
-
-class _NotificationButton extends StatelessWidget {
-  const _NotificationButton();
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: 42.w,
-          height: 42.w,
-          decoration: BoxDecoration(
-            color: AppColors.surfaceDefault,
-            borderRadius: BorderRadius.circular(12.r),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.secondaryNavy.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          alignment: Alignment.center,
-          child: Icon(
-            Icons.notifications_none_rounded,
-            color: AppColors.secondaryNavy,
-            size: 20.sp,
-          ),
-        ),
-        Positioned(
-          top: 6.h,
-          right: 8.w,
-          child: Container(
-            width: 8.w,
-            height: 8.w,
-            decoration: const BoxDecoration(
-              color: AppColors.error,
-              shape: BoxShape.circle,
-            ),
-          ),
-        ),
+        MascotInline(mood: MascotMood.welcome, size: 96.w),
       ],
     );
   }
@@ -328,38 +285,54 @@ class _CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.surfaceDefault,
-      borderRadius: BorderRadius.circular(16.r),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16.r),
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 8.w),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(color: AppColors.border, width: 1),
+    final radius = BorderRadius.circular(20.r);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        // The full card adopts the category's soft pastel tone so each
+        // category reads as its own visual identity instead of a generic
+        // white tile.
+        color: spec.tintBg,
+        borderRadius: radius,
+        boxShadow: [
+          // Shadow tinted with the icon color so each card has a subtle
+          // halo matching its accent — gives depth without an outline.
+          BoxShadow(
+            color: spec.iconColor.withValues(alpha: 0.10),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 48.w,
-                height: 48.w,
-                decoration: BoxDecoration(
-                  color: spec.tintBg,
-                  borderRadius: BorderRadius.circular(12.r),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: radius,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: radius,
+          splashColor: spec.iconColor.withValues(alpha: 0.12),
+          highlightColor: spec.iconColor.withValues(alpha: 0.05),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(8.w, 16.h, 8.w, 14.h),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(spec.icon, color: spec.iconColor, size: 28.sp),
+                SizedBox(height: 10.h),
+                Text(
+                  spec.label,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyle.bodyStrong().copyWith(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w700,
+                    height: 16 / 13,
+                    letterSpacing: 0.1,
+                  ),
                 ),
-                alignment: Alignment.center,
-                child: Icon(spec.icon, color: spec.iconColor, size: 24.sp),
-              ),
-              SizedBox(height: 10.h),
-              Text(
-                spec.label,
-                style: AppTextStyle.bodyStrong().copyWith(fontSize: 14.sp),
-                textAlign: TextAlign.center,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

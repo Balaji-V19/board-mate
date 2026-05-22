@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'config/theme/app_theme.dart';
 import 'core/router/app_router.dart';
 import 'dependency_injection.dart';
+import 'features/mascot/presentation/widgets/mascot_host.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -37,6 +38,8 @@ class BoardMateApp extends ConsumerWidget {
           theme: AppTheme.light,
           routerConfig: router,
           debugShowCheckedModeBanner: false,
+          builder: (context, child) =>
+              MascotHost(child: child ?? const SizedBox.shrink()),
         );
       },
     );

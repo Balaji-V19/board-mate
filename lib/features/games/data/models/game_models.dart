@@ -79,6 +79,15 @@ GuideStepEntity _stepFromJson(Map<String, dynamic> j) => GuideStepEntity(
                 caption: e['caption'] as String?,
               ))
           .toList(),
+      elements: ((j['elements'] as List?) ?? const [])
+          .map((e) => StepElement(
+                name: ((e as Map<String, dynamic>)['name'] ?? '') as String,
+                iconKey: e['iconKey'] as String?,
+                photoKey: e['photoKey'] as String?,
+                message: (e['message'] ?? '') as String,
+                moodKey: e['moodKey'] as String?,
+              ))
+          .toList(),
     );
 
 TurnFlowStepEntity _turnStepFromJson(Map<String, dynamic> j) =>
@@ -212,6 +221,15 @@ Map<String, dynamic> _stepToJson(GuideStepEntity s) => {
                 'photoKey': i.photoKey,
                 'url': i.url,
                 'caption': i.caption,
+              })
+          .toList(),
+      'elements': s.elements
+          .map((e) => {
+                'name': e.name,
+                'iconKey': e.iconKey,
+                'photoKey': e.photoKey,
+                'message': e.message,
+                'moodKey': e.moodKey,
               })
           .toList(),
     };

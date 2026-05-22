@@ -25,12 +25,43 @@
         {"name": "Settlements / cities / roads", "count": 96}
       ],
       "setupSteps": [
-        {"order": 1, "title": "Build the island", "body": "Arrange the 19 hex tiles randomly inside the frame. Place the sea frame pieces around the edge.", "tip": "For your first game, use the recommended layout in the rulebook so resources are balanced.", "images": [{"photoKey": "wooden-blocks", "iconKey": "hex", "caption": "19 hexes form a flower-shaped island"}]},
-        {"order": 2, "title": "Place number tokens", "body": "Lay the round number tokens on the hexes in alphabetical order (A, B, C...). Skip the desert hex.", "checklist": ["19 hexes placed", "Number tokens placed clockwise", "Desert left empty"], "images": [{"photoKey": "wooden-blocks", "iconKey": "token", "caption": "Number tokens go on hexes clockwise"}]},
-        {"order": 3, "title": "Place the robber", "body": "Set the robber pawn on the desert hex.", "images": [{"iconKey": "warning", "caption": "Robber starts on the desert"}]},
-        {"order": 4, "title": "Hand out player kits", "body": "Each player takes 5 settlements, 4 cities, 15 roads, and one building costs card in their color.", "images": [{"photoKey": "wooden-pieces", "iconKey": "settlement", "caption": "Per-player pieces in your color"}]},
-        {"order": 5, "title": "Initial placement", "body": "In player order, each player places one settlement and one connecting road. Then in reverse order, each player places a second settlement and road.", "tip": "Pick spots that touch three different resources for the strongest start.", "images": [{"photoKey": "wooden-pieces", "iconKey": "settlement", "caption": "Place a settlement"}, {"photoKey": "pieces-on-map", "iconKey": "road", "caption": "Connect a road"}]},
-        {"order": 6, "title": "Collect starting resources", "body": "For the second settlement, take one resource card for each adjacent hex.", "checklist": ["Two settlements per player", "Two roads per player", "Starting cards collected"], "images": [{"photoKey": "cards-spread", "iconKey": "cards", "caption": "Take cards for the 3 adjacent hexes"}]}
+        {"order": 1, "title": "Build the island", "body": "Arrange the 19 hex tiles randomly inside the frame. Place the sea frame pieces around the edge.", "tip": "For your first game, use the recommended layout in the rulebook so resources are balanced.",
+          "elements": [
+            {"name": "Hex tiles", "iconKey": "hex", "message": "Each hex is a resource — wood, grain, ore, brick, wool, or the lone desert. They tile into the island.", "moodKey": "reading"},
+            {"name": "Sea frame", "iconKey": "compass", "message": "The blue frame keeps the island in shape and shows where the trading ports sit.", "moodKey": "thinking"}
+          ],
+          "images": [{"photoKey": "wooden-blocks", "iconKey": "hex", "caption": "19 hexes form a flower-shaped island"}]},
+        {"order": 2, "title": "Place number tokens", "body": "Lay the round number tokens on the hexes in alphabetical order (A, B, C...). Skip the desert hex.", "checklist": ["19 hexes placed", "Number tokens placed clockwise", "Desert left empty"],
+          "elements": [
+            {"name": "Number tokens", "iconKey": "token", "message": "When the two dice add up to a token's number, every settlement touching that hex gets a resource card.", "moodKey": "teaching"},
+            {"name": "Desert hex", "iconKey": "warning", "message": "The desert never produces anything — leave it bare with no number token on top.", "moodKey": "curious"}
+          ],
+          "images": [{"photoKey": "wooden-blocks", "iconKey": "token", "caption": "Number tokens go on hexes clockwise"}]},
+        {"order": 3, "title": "Place the robber", "body": "Set the robber pawn on the desert hex.",
+          "elements": [
+            {"name": "Robber", "iconKey": "warning", "message": "The robber blocks production on whatever hex it sits on. It starts in the desert, where nothing is produced anyway.", "moodKey": "thinking"}
+          ],
+          "images": [{"iconKey": "warning", "caption": "Robber starts on the desert"}]},
+        {"order": 4, "title": "Hand out player kits", "body": "Each player takes 5 settlements, 4 cities, 15 roads, and one building costs card in their color.",
+          "elements": [
+            {"name": "Settlement", "iconKey": "settlement", "message": "Settlements sit on hex corners and give 1 card whenever an adjacent hex is rolled. Worth 1 VP.", "moodKey": "teaching"},
+            {"name": "City", "iconKey": "house", "message": "Cities upgrade settlements: 2 cards per roll instead of 1, and worth 2 VP.", "moodKey": "teaching"},
+            {"name": "Road", "iconKey": "road", "message": "Roads connect your network and let you reach new corners to settle.", "moodKey": "reading"},
+            {"name": "Costs card", "iconKey": "cards", "message": "Your building-costs card lists what to spend to build each thing. Keep it face up.", "moodKey": "reading"}
+          ],
+          "images": [{"photoKey": "wooden-pieces", "iconKey": "settlement", "caption": "Per-player pieces in your color"}]},
+        {"order": 5, "title": "Initial placement", "body": "In player order, each player places one settlement and one connecting road. Then in reverse order, each player places a second settlement and road.", "tip": "Pick spots that touch three different resources for the strongest start.",
+          "elements": [
+            {"name": "First settlement", "iconKey": "settlement", "message": "Your first settlement gives no starting cards — pick it for long-term resource access.", "moodKey": "thinking"},
+            {"name": "Second settlement", "iconKey": "settlement", "message": "Your second settlement DOES give you starting cards (one per touching hex), so pick a balanced trio of resources.", "moodKey": "curious"},
+            {"name": "Roads", "iconKey": "road", "message": "Each settlement needs a road attached — that's your direction of expansion.", "moodKey": "reading"}
+          ],
+          "images": [{"photoKey": "wooden-pieces", "iconKey": "settlement", "caption": "Place a settlement"}, {"photoKey": "pieces-on-map", "iconKey": "road", "caption": "Connect a road"}]},
+        {"order": 6, "title": "Collect starting resources", "body": "For the second settlement, take one resource card for each adjacent hex.", "checklist": ["Two settlements per player", "Two roads per player", "Starting cards collected"],
+          "elements": [
+            {"name": "Resource cards", "iconKey": "cards", "message": "Five resource types: wood, brick, wool, grain, ore. Spend combos of these to build everything.", "moodKey": "teaching"}
+          ],
+          "images": [{"photoKey": "cards-spread", "iconKey": "cards", "caption": "Take cards for the 3 adjacent hexes"}]}
       ],
       "howToPlaySteps": [
         {

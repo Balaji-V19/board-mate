@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -9,12 +12,16 @@ import '../../../../config/constants/app_strings.dart';
 import '../../../../config/constants/app_textstyle.dart';
 import '../../../../core/widgets/bm_button.dart';
 import '../../../../core/widgets/bm_concept_image.dart';
-import '../../../../core/widgets/bm_info_box.dart';
 import '../../../../core/widgets/bm_progress_bar.dart';
 import '../../../games/domain/entities/guide_step_entity.dart';
 import '../../../games/domain/entities/user_progress_entity.dart';
 import '../../../games/presentation/providers/games_notifier.dart';
 import '../../../games/presentation/providers/progress_notifier.dart';
+import '../../../mascot/domain/entities/mascot_mood.dart';
+import '../../../mascot/presentation/widgets/mascot_celebration.dart';
+import '../widgets/guide_tip_cards.dart';
+import '../widgets/mascot_speech_bubble.dart';
+import '../widgets/reveal_rule_card.dart';
 
 class HowToPlayPage extends ConsumerStatefulWidget {
   const HowToPlayPage({super.key, required this.gameId});
@@ -27,6 +34,15 @@ class HowToPlayPage extends ConsumerStatefulWidget {
 class _HowToPlayPageState extends ConsumerState<HowToPlayPage> {
   int _chapter = 0;
 
+  /// Per-chapter set of rule numbers that have been revealed. Reset when the
+  /// user navigates between chapters so re-visits feel fresh.
+  final Map<int, Set<int>> _revealed = {};
+
+  /// Transient mascot message shown after a rule is revealed; null falls back
+  /// to the chapter's default prompt.
+  String? _bubbleMessage;
+  Timer? _bubbleTimer;
+
   @override
   void initState() {
     super.initState();
@@ -36,6 +52,32 @@ class _HowToPlayPageState extends ConsumerState<HowToPlayPage> {
           .read(progressNotifierProvider)
           .touch(widget.gameId, GuideSection.howToPlay);
     });
+  }
+
+  void _revealRule(NumberedRuleEntity rule) {
+    HapticFeedback.lightImpact();
+    setState(() {
+      _revealed.putIfAbsent(_chapter, () => <int>{}).add(rule.number);
+      _bubbleMessage = 'Rule ${rule.number} — got it. Keep going!';
+    });
+    _bubbleTimer?.cancel();
+    _bubbleTimer = Timer(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      setState(() => _bubbleMessage = null);
+    });
+  }
+
+  void _resetBubble() {
+    _bubbleTimer?.cancel();
+    if (_bubbleMessage != null) {
+      setState(() => _bubbleMessage = null);
+    }
+  }
+
+  @override
+  void dispose() {
+    _bubbleTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -77,6 +119,9 @@ class _HowToPlayPageState extends ConsumerState<HowToPlayPage> {
             final chapters = guide.howToPlaySteps
               ..sort((a, b) => a.order.compareTo(b.order));
             final current = chapters[_chapter];
+            final revealedHere = _revealed[_chapter] ?? const <int>{};
+            final allRevealed = current.rules.isNotEmpty &&
+                revealedHere.length >= current.rules.length;
 
             return Column(
               children: [
@@ -90,16 +135,24 @@ class _HowToPlayPageState extends ConsumerState<HowToPlayPage> {
                     chapter: current,
                     chapterIndex: _chapter,
                     totalChapters: chapters.length,
+                    revealed: revealedHere,
+                    bubbleMessage: _bubbleMessage,
+                    onRevealRule: _revealRule,
                   ),
                 ),
                 _BottomBar(
                   isFirst: _chapter == 0,
                   isLast: _chapter == chapters.length - 1,
+                  finishedAll: allRevealed,
                   onBack: () {
-                    if (_chapter > 0) setState(() => _chapter--);
+                    if (_chapter > 0) {
+                      _resetBubble();
+                      setState(() => _chapter--);
+                    }
                   },
                   onNext: () async {
                     if (_chapter < chapters.length - 1) {
+                      _resetBubble();
                       setState(() => _chapter++);
                       return;
                     }
@@ -108,10 +161,13 @@ class _HowToPlayPageState extends ConsumerState<HowToPlayPage> {
                         .markComplete(
                             widget.gameId, GuideSection.howToPlay);
                     if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('How to play marked complete.')),
+                    await showMascotCelebration(
+                      context,
+                      title: 'How to play — done!',
+                      subtitle:
+                          'You know the rules. Practice makes legends.',
                     );
+                    if (!context.mounted) return;
                     context.go('/game/${widget.gameId}/learn');
                   },
                 ),
@@ -146,8 +202,9 @@ class _Header extends StatelessWidget {
                       fontSize: 17.sp, fontWeight: FontWeight.w700)),
             ),
           ),
-          _RoundIconButton(
-              icon: Icons.more_horiz_rounded, onTap: () {}),
+          // Keeps the title centered now that the mascot has moved into the
+          // content area below.
+          SizedBox(width: 42.w),
         ],
       ),
     );
@@ -189,19 +246,37 @@ class _ChapterView extends StatelessWidget {
     required this.chapter,
     required this.chapterIndex,
     required this.totalChapters,
+    required this.revealed,
+    required this.bubbleMessage,
+    required this.onRevealRule,
   });
 
   final GuideStepEntity chapter;
   final int chapterIndex;
   final int totalChapters;
 
+  /// Rule numbers already revealed in this chapter.
+  final Set<int> revealed;
+
+  /// Transient mascot prompt (e.g. after a reveal). When null, a default
+  /// prompt is shown based on the chapter's rule count.
+  final String? bubbleMessage;
+
+  final ValueChanged<NumberedRuleEntity> onRevealRule;
+
   @override
   Widget build(BuildContext context) {
     final pct = (chapterIndex + 1) / totalChapters;
     final readMinutes = _estimateReadMinutes(chapter);
+    final ruleCount = chapter.rules.length;
+    final defaultPrompt = ruleCount > 0
+        ? '$ruleCount rule${ruleCount == 1 ? '' : 's'} in this chapter — '
+            'tap each card to learn it.'
+        : chapter.body;
+    final message = bubbleMessage ?? defaultPrompt;
 
     return ListView(
-      padding: EdgeInsets.fromLTRB(AppSpacing.screenHorizontal, 18.h,
+      padding: EdgeInsets.fromLTRB(AppSpacing.screenHorizontal, 12.h,
           AppSpacing.screenHorizontal, 20.h),
       children: [
         // Progress header row
@@ -218,7 +293,17 @@ class _ChapterView extends StatelessWidget {
         ),
         SizedBox(height: 10.h),
         BmProgressBar(value: pct, height: 6.h),
-        SizedBox(height: 20.h),
+        SizedBox(height: 18.h),
+        // Mascot teaches "from the right" on this screen — bubble on the
+        // left, mascot on the right — so the reading order flows naturally
+        // into the rules below.
+        MascotSpeechBubble(
+          mood: MascotMood.teaching,
+          message: message,
+          mascotSize: 140,
+          mascotOnRight: true,
+        ),
+        SizedBox(height: 22.h),
         // Chapter title
         Text(
           chapter.title,
@@ -227,18 +312,22 @@ class _ChapterView extends StatelessWidget {
               fontWeight: FontWeight.w800,
               height: 34 / 26),
         ),
-        SizedBox(height: 12.h),
-        // Intro paragraph
-        Text(
-          chapter.body,
-          style: AppTextStyle.body(color: AppColors.textSecondary),
-        ),
+        // Intro paragraph — suppressed when the bubble is already saying
+        // exactly this text (happens on chapters with no numbered rules,
+        // where the default bubble prompt falls back to chapter.body).
+        if (chapter.body.isNotEmpty && message != chapter.body) ...[
+          SizedBox(height: 12.h),
+          Text(
+            chapter.body,
+            style: AppTextStyle.body(color: AppColors.textSecondary),
+          ),
+        ],
         // Illustration
         if (chapter.images.isNotEmpty) ...[
           SizedBox(height: 18.h),
           BmConceptImageRow(images: chapter.images),
         ],
-        // Rules
+        // Rules — each one revealed on tap.
         if (chapter.rules.isNotEmpty) ...[
           SizedBox(height: 22.h),
           Text(
@@ -247,16 +336,17 @@ class _ChapterView extends StatelessWidget {
                 .copyWith(fontWeight: FontWeight.w800, fontSize: 20.sp),
           ),
           SizedBox(height: 12.h),
-          for (final rule in chapter.rules) _RuleCard(rule: rule),
+          for (final rule in chapter.rules)
+            RevealRuleCard(
+              rule: rule,
+              revealed: revealed.contains(rule.number),
+              onTap: () => onRevealRule(rule),
+            ),
         ],
-        // Warning
+        // Warning — same inline-callout style as the setup-guide Pro Tip
         if (chapter.warning != null) ...[
           SizedBox(height: 14.h),
-          BmInfoBox(
-            label: AppStrings.warning,
-            body: chapter.warning!,
-            tone: BmInfoTone.warning,
-          ),
+          WatchOutCard(body: chapter.warning!),
         ],
       ],
     );
@@ -274,74 +364,31 @@ class _ChapterView extends StatelessWidget {
   }
 }
 
-class _RuleCard extends StatelessWidget {
-  const _RuleCard({required this.rule});
-  final NumberedRuleEntity rule;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 10.h),
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceDefault,
-        borderRadius: BorderRadius.circular(AppSpacing.smallCardRadius),
-        border: Border.all(color: AppColors.border, width: 1),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 28.w,
-            height: 28.w,
-            decoration: BoxDecoration(
-              color: AppColors.primaryGold.withValues(alpha: 0.16),
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              '${rule.number}',
-              style: AppTextStyle.bodyStrong(color: AppColors.primaryGold)
-                  .copyWith(fontSize: 13.sp),
-            ),
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(rule.title,
-                    style: AppTextStyle.bodyStrong()
-                        .copyWith(fontSize: 15.sp)),
-                SizedBox(height: 2.h),
-                Text(rule.body,
-                    style: AppTextStyle.helper(
-                        color: AppColors.textSecondary)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // ─── Bottom CTA bar ──────────────────────────────────────────────────────
 
 class _BottomBar extends StatelessWidget {
   const _BottomBar({
     required this.isFirst,
     required this.isLast,
+    required this.finishedAll,
     required this.onBack,
     required this.onNext,
   });
   final bool isFirst;
   final bool isLast;
+
+  /// True once every rule in the current chapter has been revealed.
+  final bool finishedAll;
+
   final VoidCallback onBack;
   final VoidCallback onNext;
 
   @override
   Widget build(BuildContext context) {
+    final primaryLabel = isLast
+        ? (finishedAll ? 'Finish learning ✨' : 'Finish chapters')
+        : 'Next Chapter →';
+
     return SafeArea(
       top: false,
       child: Padding(
@@ -361,7 +408,7 @@ class _BottomBar extends StatelessWidget {
             Expanded(
               flex: 7,
               child: BmButton(
-                label: isLast ? 'Finish chapters' : 'Next Chapter →',
+                label: primaryLabel,
                 icon: isLast ? Icons.check_rounded : null,
                 onPressed: onNext,
               ),

@@ -14,6 +14,7 @@ import 'features/auth/domain/usecases/sign_in_with_google.dart';
 import 'features/auth/domain/usecases/sign_out.dart';
 import 'features/auth/domain/usecases/watch_auth_state.dart';
 import 'features/auth/presentation/providers/auth_notifier.dart';
+import 'features/mascot/presentation/providers/mascot_notifier.dart';
 import 'features/games/data/datasources/games_firestore_datasource.dart';
 import 'features/games/data/datasources/progress_firestore_datasource.dart';
 import 'features/games/data/repositories/games_repository_impl.dart';
@@ -133,4 +134,7 @@ Future<void> initializeDependencies() async {
   );
   sl.registerLazySingleton<ProgressNotifier>(
       () => ProgressNotifier(repository: sl<ProgressRepository>()));
+
+  // ── mascot ──
+  sl.registerLazySingleton<MascotNotifier>(() => MascotNotifier());
 }

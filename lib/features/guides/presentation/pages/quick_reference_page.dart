@@ -14,7 +14,10 @@ import '../../../games/domain/entities/scoring_guide_entity.dart';
 import '../../../games/domain/entities/user_progress_entity.dart';
 import '../../../games/presentation/providers/games_notifier.dart';
 import '../../../games/presentation/providers/progress_notifier.dart';
+import '../../../mascot/domain/entities/mascot_mood.dart';
+import '../../../mascot/presentation/widgets/mascot_celebration.dart';
 import '../../../saved_games/presentation/providers/saved_games_notifier.dart';
+import '../widgets/mascot_speech_bubble.dart';
 
 class QuickReferencePage extends ConsumerStatefulWidget {
   const QuickReferencePage({super.key, required this.gameId});
@@ -109,10 +112,13 @@ class _QuickReferencePageState extends ConsumerState<QuickReferencePage> {
                               .markComplete(widget.gameId,
                                   GuideSection.quickReference);
                           if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('All sections complete!')),
+                          await showMascotCelebration(
+                            context,
+                            title: 'All sections complete!',
+                            subtitle:
+                                'You\'re fully prepped to teach this one. Gather the table.',
                           );
+                          if (!context.mounted) return;
                           context.go('/game/${widget.gameId}/learn');
                         },
                 ),
@@ -147,8 +153,9 @@ class _Header extends StatelessWidget {
                       fontSize: 17.sp, fontWeight: FontWeight.w700)),
             ),
           ),
-          _RoundIconButton(
-              icon: Icons.more_horiz_rounded, onTap: () {}),
+          // Counter-balance so the title stays centered now that the
+          // mascot has moved into the body as a prominent hero.
+          SizedBox(width: 42.w),
         ],
       ),
     );
@@ -202,8 +209,12 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bubbleMessage = gameName.isEmpty
+        ? 'All the rules, scoring, and gotchas — one screen for the table.'
+        : 'Your $gameName cheat sheet — rules, scoring, and gotchas, '
+            'all in one screen. Bookmark for game night.';
     return ListView(
-      padding: EdgeInsets.fromLTRB(AppSpacing.screenHorizontal, 18.h,
+      padding: EdgeInsets.fromLTRB(AppSpacing.screenHorizontal, 14.h,
           AppSpacing.screenHorizontal, 24.h),
       children: [
         _TitleBlock(
@@ -211,7 +222,15 @@ class _Body extends StatelessWidget {
           isSaved: isSaved,
           onToggleSaved: onToggleSaved,
         ),
-        SizedBox(height: 22.h),
+        SizedBox(height: 18.h),
+        // Hero mascot + speech bubble — prominent at the top of the body so
+        // the page feels like the mascot is presenting the cheat sheet.
+        MascotSpeechBubble(
+          mood: MascotMood.curious,
+          message: bubbleMessage,
+          mascotSize: 170,
+        ),
+        SizedBox(height: 26.h),
         for (final section in guide.quickReference.sections) ...[
           _RefSection(section: section),
           SizedBox(height: 20.h),

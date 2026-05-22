@@ -10,6 +10,8 @@ import '../../../../config/constants/app_textstyle.dart';
 import '../../../../core/widgets/bm_die_icon.dart';
 import '../../../games/domain/entities/board_game_entity.dart';
 import '../../../games/presentation/providers/games_notifier.dart';
+import '../../../mascot/domain/entities/mascot_mood.dart';
+import '../../../mascot/presentation/widgets/mascot_inline.dart';
 import '../providers/saved_games_notifier.dart';
 
 enum _Tab { all, downloaded, collections }
@@ -22,7 +24,6 @@ class SavedGamesPage extends ConsumerStatefulWidget {
 
 class _SavedGamesPageState extends ConsumerState<SavedGamesPage> {
   _Tab _tab = _Tab.all;
-  bool _editMode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -65,10 +66,7 @@ class _SavedGamesPageState extends ConsumerState<SavedGamesPage> {
                               fontSize: 32.sp, fontWeight: FontWeight.w800),
                         ),
                       ),
-                      _EditButton(
-                        active: _editMode,
-                        onTap: () => setState(() => _editMode = !_editMode),
-                      ),
+                      MascotInline(mood: MascotMood.reading, size: 64.w),
                     ],
                   ),
                   SizedBox(height: 2.h),
@@ -89,7 +87,6 @@ class _SavedGamesPageState extends ConsumerState<SavedGamesPage> {
               child: _Content(
                 tab: _tab,
                 games: filtered,
-                editMode: _editMode,
                 isDownloaded: saved.isDownloaded,
                 onTap: (g) => context.push('/game/${g.id}'),
                 onToggleDownloaded: (id) => ref
@@ -100,41 +97,6 @@ class _SavedGamesPageState extends ConsumerState<SavedGamesPage> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Edit button ─────────────────────────────────────────────────────────
-
-class _EditButton extends StatelessWidget {
-  const _EditButton({required this.active, required this.onTap});
-  final bool active;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: active ? AppColors.primaryGold : AppColors.surfaceDefault,
-      borderRadius: BorderRadius.circular(100),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(100),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 8.h),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(100),
-            border: active
-                ? null
-                : Border.all(color: AppColors.border, width: 1),
-          ),
-          child: Text(
-            active ? 'Done' : 'Edit',
-            style: AppTextStyle.bodyStrong(
-                color: active ? Colors.white : AppColors.secondaryNavy)
-                .copyWith(fontSize: 14.sp),
-          ),
         ),
       ),
     );
@@ -226,7 +188,6 @@ class _Content extends StatelessWidget {
   const _Content({
     required this.tab,
     required this.games,
-    required this.editMode,
     required this.isDownloaded,
     required this.onTap,
     required this.onToggleDownloaded,
@@ -235,7 +196,6 @@ class _Content extends StatelessWidget {
 
   final _Tab tab;
   final List<BoardGameEntity> games;
-  final bool editMode;
   final bool Function(String) isDownloaded;
   final void Function(BoardGameEntity) onTap;
   final void Function(String gameId) onToggleDownloaded;
@@ -265,7 +225,6 @@ class _Content extends StatelessWidget {
         return _SavedCard(
           game: g,
           downloaded: downloaded,
-          editMode: editMode,
           onTap: () => onTap(g),
           onToggleDownloaded: () => onToggleDownloaded(g.id),
           onUnsave: () => onUnsave(g.id),
@@ -314,7 +273,6 @@ class _SavedCard extends StatelessWidget {
   const _SavedCard({
     required this.game,
     required this.downloaded,
-    required this.editMode,
     required this.onTap,
     required this.onToggleDownloaded,
     required this.onUnsave,
@@ -322,7 +280,6 @@ class _SavedCard extends StatelessWidget {
 
   final BoardGameEntity game;
   final bool downloaded;
-  final bool editMode;
   final VoidCallback onTap;
   final VoidCallback onToggleDownloaded;
   final VoidCallback onUnsave;
@@ -374,17 +331,13 @@ class _SavedCard extends StatelessWidget {
               ),
               SizedBox(width: 8.w),
               InkWell(
-                onTap: editMode ? onUnsave : null,
+                onTap: onUnsave,
                 customBorder: const CircleBorder(),
                 child: Padding(
                   padding: EdgeInsets.all(4.w),
                   child: Icon(
-                    editMode
-                        ? Icons.close_rounded
-                        : Icons.favorite_rounded,
-                    color: editMode
-                        ? AppColors.error
-                        : AppColors.primaryGold,
+                    Icons.favorite_rounded,
+                    color: AppColors.primaryGold,
                     size: 22.sp,
                   ),
                 ),

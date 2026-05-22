@@ -11,6 +11,7 @@ class GuideStepEntity extends Equatable {
     this.checklist = const [],
     this.rules = const [],
     this.images = const [],
+    this.elements = const [],
   });
 
   final int order;
@@ -23,6 +24,11 @@ class GuideStepEntity extends Equatable {
   final List<NumberedRuleEntity> rules;
   final List<StepImage> images;
 
+  /// Optional tappable game pieces tied to this step. Each one carries a
+  /// short mascot explanation that's shown in the on-page speech bubble.
+  /// Absent for legacy games — the screen renders without an element strip.
+  final List<StepElement> elements;
+
   @override
   List<Object?> get props => [
         order,
@@ -34,6 +40,7 @@ class GuideStepEntity extends Equatable {
         checklist,
         rules,
         images,
+        elements,
       ];
 }
 
@@ -56,6 +63,39 @@ class StepImage extends Equatable {
 
   @override
   List<Object?> get props => [iconKey, photoKey, url, caption];
+}
+
+/// A tappable game piece / component highlighted on a setup step. When the
+/// user taps the element card, the mascot's speech bubble switches to
+/// [message] and the mascot can briefly change mood (via [moodKey]).
+class StepElement extends Equatable {
+  const StepElement({
+    required this.name,
+    this.iconKey,
+    this.photoKey,
+    required this.message,
+    this.moodKey,
+  });
+
+  /// Short label shown on the card itself (e.g. "Dice").
+  final String name;
+
+  /// Concept key from the icon registry in `BmConceptImage`. Used when no
+  /// photo is provided.
+  final String? iconKey;
+
+  /// Concept key from the photo registry in `BmConceptImage`.
+  final String? photoKey;
+
+  /// What the mascot says when this element is tapped.
+  final String message;
+
+  /// One of: `welcome | thinking | teaching | reading | curious | celebrating`.
+  /// Null falls back to `thinking` (default "explaining a piece" mood).
+  final String? moodKey;
+
+  @override
+  List<Object?> get props => [name, iconKey, photoKey, message, moodKey];
 }
 
 class NumberedRuleEntity extends Equatable {

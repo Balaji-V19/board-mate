@@ -9,6 +9,8 @@ import '../../../../config/constants/app_textstyle.dart';
 import '../../../games/domain/entities/user_progress_entity.dart';
 import '../../../games/presentation/providers/games_notifier.dart';
 import '../../../games/presentation/providers/progress_notifier.dart';
+import '../../../mascot/domain/entities/mascot_mood.dart';
+import '../../../mascot/presentation/widgets/mascot_inline.dart';
 
 class LearnModePage extends ConsumerWidget {
   const LearnModePage({super.key, required this.gameId});
@@ -143,10 +145,7 @@ class _Header extends StatelessWidget {
             ),
           ),
         ),
-        _IconButton(
-          icon: Icons.more_horiz_rounded,
-          onTap: () {},
-        ),
+        MascotInline(mood: MascotMood.teaching, size: 56.w),
       ],
     );
   }
