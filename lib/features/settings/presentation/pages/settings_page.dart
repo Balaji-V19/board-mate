@@ -12,6 +12,7 @@ import '../../../../config/constants/app_textstyle.dart';
 import '../../../../config/legal_links.dart';
 import '../../../../core/services/seed_service.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
+import '../providers/notification_preference_notifier.dart';
 
 Future<void> _openExternalUrl(BuildContext context, String url) async {
   final uri = Uri.tryParse(url);
@@ -126,14 +127,7 @@ class SettingsPage extends ConsumerWidget {
             SizedBox(height: 22.h),
             _SectionLabel('NOTIFICATIONS'),
             _SectionCard(children: [
-              _ToggleRow(
-                icon: Icons.music_note_rounded,
-                iconTint: const Color(0xFFF1E4CC),
-                iconColor: AppColors.primaryGold,
-                title: 'Push notifications',
-                initial: true,
-                onChanged: (_) {},
-              ),
+              _PushNotificationToggleRow(),
               _Divider(),
               _ToggleRow(
                 icon: Icons.mail_outline_rounded,
@@ -584,6 +578,45 @@ class _SettingRow extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Push-notification row backed by [notificationPreferenceProvider]. Toggling
+/// the switch persists the preference and tells [NotificationService] to
+/// register or remove this device's FCM token.
+class _PushNotificationToggleRow extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final pref = ref.watch(notificationPreferenceProvider);
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      child: Row(
+        children: [
+          _IconTile(
+            icon: Icons.notifications_active_rounded,
+            tint: const Color(0xFFF1E4CC),
+            color: AppColors.primaryGold,
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Text(
+              'Push notifications',
+              style: AppTextStyle.cardTitle()
+                  .copyWith(fontSize: 16.sp, fontWeight: FontWeight.w600),
+            ),
+          ),
+          Switch.adaptive(
+            value: pref.enabled,
+            onChanged: pref.loaded
+                ? (v) => ref
+                    .read(notificationPreferenceProvider)
+                    .setEnabled(v)
+                : null,
+            activeThumbColor: AppColors.primaryGold,
+          ),
+        ],
       ),
     );
   }

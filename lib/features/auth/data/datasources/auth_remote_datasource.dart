@@ -10,6 +10,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../../../config/constants/api_constants.dart';
 import '../../../../core/error/exceptions.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../domain/entities/app_user.dart';
 
 abstract class AuthRemoteDataSource {
@@ -175,6 +176,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<void> signOut() async {
+    // Drop this device's FCM token first so the account stops receiving
+    // pushes on this device. Best-effort — never block sign-out on it.
+    try {
+      await NotificationService.instance.removeCurrentDeviceToken();
+    } catch (_) {}
     await _googleSignIn.signOut();
     await _auth.signOut();
   }
@@ -238,6 +244,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       FirestoreCollections.saved,
       FirestoreCollections.progress,
       FirestoreCollections.recents,
+      'fcmTokens',
     ]) {
       try {
         await _purgeUserSubcollection(user.uid, sub);

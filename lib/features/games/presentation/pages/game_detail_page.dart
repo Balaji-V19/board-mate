@@ -78,11 +78,7 @@ class _Loaded extends ConsumerWidget {
                       : context.go('/home'),
                 ),
                 const Spacer(),
-                _FrostedIcon(
-                  icon: Icons.ios_share_rounded,
-                  onTap: () {},
-                ),
-                SizedBox(width: 10.w),
+                // Share button intentionally hidden for now.
                 _FrostedIcon(
                   icon: isSaved
                       ? Icons.favorite_rounded

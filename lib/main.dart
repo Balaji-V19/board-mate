@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'config/theme/app_theme.dart';
 import 'core/router/app_router.dart';
+import 'core/services/notification_service.dart';
 import 'dependency_injection.dart';
 import 'features/mascot/presentation/widgets/mascot_host.dart';
 import 'firebase_options.dart';
@@ -20,6 +23,8 @@ Future<void> main() async {
     }
   }
   await initializeDependencies();
+  // Fire-and-forget — never block app start on notification plumbing.
+  unawaited(NotificationService.instance.init());
   runApp(const ProviderScope(child: BoardMateApp()));
 }
 
@@ -33,6 +38,10 @@ class BoardMateApp extends ConsumerWidget {
       minTextAdapt: true,
       builder: (_, __) {
         final router = ref.watch(routerProvider);
+        // Hand the router to the notification service so taps that include
+        // a `route` payload can deep-link into the app. Safe to call every
+        // build — `attachRouter` is idempotent.
+        NotificationService.instance.attachRouter(router);
         return MaterialApp.router(
           title: 'BoardMate',
           theme: AppTheme.light,

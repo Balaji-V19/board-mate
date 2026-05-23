@@ -1,7 +1,7 @@
 name: boardmate
 description: "BoardMate — learn how to play physical board games."
 publish_to: 'none'
-version: 1.0.0+2
+version: 1.0.0+3
 
 environment:
   sdk: ^3.9.2
@@ -39,9 +39,14 @@ dependencies:
   firebase_core: ^3.6.0
   firebase_auth: ^5.3.1
   cloud_firestore: ^5.4.4
+  firebase_messaging: ^15.1.4
   google_sign_in: ^6.2.1
   sign_in_with_apple: ^6.1.2
   crypto: ^3.0.5
+
+  # Local notification banners (used to display FCM messages while the app
+  # is in the foreground — iOS doesn't auto-display in that state).
+  flutter_local_notifications: ^18.0.1
 
   # Local storage / images
   shared_preferences: ^2.3.2

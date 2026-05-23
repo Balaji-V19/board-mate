@@ -1,8 +1,26 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required for runtime notification permission on Android 13 (API 33)+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
     <application
         android:label="boardmate"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <!-- Default notification icon + color used by FCM-delivered messages
+             that don't include their own. Falls back to the launcher icon. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@mipmap/ic_launcher" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@android:color/holo_orange_dark" />
+        <!-- Channel used for foreground notifications surfaced by
+             flutter_local_notifications. Must match the channel ID created
+             in NotificationService. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="boardmate_default" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
