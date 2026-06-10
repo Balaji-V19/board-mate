@@ -27,6 +27,7 @@ class StepElementCard extends StatelessWidget {
     final imageStub = StepImage(
       iconKey: element.iconKey,
       photoKey: element.photoKey,
+      url: element.url,
     );
     final ringColor = selected
         ? AppColors.primaryGold

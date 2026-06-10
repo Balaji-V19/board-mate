@@ -52,6 +52,8 @@ ComponentEntity _componentFromJson(Map<String, dynamic> j) => ComponentEntity(
       count: (j['count'] ?? 1) as int,
       description: (j['description'] ?? '') as String,
       iconKey: j['iconKey'] as String?,
+      photoKey: j['photoKey'] as String?,
+      url: j['url'] as String?,
     );
 
 GuideStepEntity _stepFromJson(Map<String, dynamic> j) => GuideStepEntity(
@@ -84,6 +86,7 @@ GuideStepEntity _stepFromJson(Map<String, dynamic> j) => GuideStepEntity(
                 name: ((e as Map<String, dynamic>)['name'] ?? '') as String,
                 iconKey: e['iconKey'] as String?,
                 photoKey: e['photoKey'] as String?,
+                url: e['url'] as String?,
                 message: (e['message'] ?? '') as String,
                 moodKey: e['moodKey'] as String?,
               ))
@@ -167,6 +170,8 @@ Map<String, dynamic> gameGuideToJson(GameGuideEntity g) => {
                 'count': c.count,
                 'description': c.description,
                 'iconKey': c.iconKey,
+                'photoKey': c.photoKey,
+                'url': c.url,
               })
           .toList(),
       'setupSteps': g.setupSteps.map(_stepToJson).toList(),
@@ -228,6 +233,7 @@ Map<String, dynamic> _stepToJson(GuideStepEntity s) => {
                 'name': e.name,
                 'iconKey': e.iconKey,
                 'photoKey': e.photoKey,
+                'url': e.url,
                 'message': e.message,
                 'moodKey': e.moodKey,
               })

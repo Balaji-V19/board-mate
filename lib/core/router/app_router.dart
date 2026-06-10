@@ -7,6 +7,7 @@ import '../../features/auth/presentation/providers/auth_notifier.dart';
 import '../../features/browse/presentation/pages/browse_page.dart';
 import '../../features/browse/presentation/pages/category_results_page.dart';
 import '../../features/games/presentation/pages/game_detail_page.dart';
+import '../../features/guides/presentation/pages/game_elements_page.dart';
 import '../../features/guides/presentation/pages/how_to_play_page.dart';
 import '../../features/guides/presentation/pages/learn_mode_page.dart';
 import '../../features/guides/presentation/pages/quick_reference_page.dart';
@@ -19,6 +20,7 @@ import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/splash_page.dart';
 import '../../features/saved_games/presentation/pages/saved_games_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
+import '../widgets/image_viewer_page.dart';
 import '../widgets/main_scaffold.dart';
 
 final _rootKey = GlobalKey<NavigatorState>();
@@ -90,6 +92,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, __) => const CreditsPage(),
       ),
       GoRoute(
+        path: '/image-viewer',
+        parentNavigatorKey: _rootKey,
+        builder: (_, st) => ImageViewerPage(
+          url: st.uri.queryParameters['url'] ?? '',
+        ),
+      ),
+      GoRoute(
         path: '/game/:gameId',
         parentNavigatorKey: _rootKey,
         builder: (_, st) =>
@@ -106,6 +115,12 @@ final routerProvider = Provider<GoRouter>((ref) {
             parentNavigatorKey: _rootKey,
             builder: (_, st) =>
                 SetupGuidePage(gameId: st.pathParameters['gameId']!),
+          ),
+          GoRoute(
+            path: 'game-elements',
+            parentNavigatorKey: _rootKey,
+            builder: (_, st) =>
+                GameElementsPage(gameId: st.pathParameters['gameId']!),
           ),
           GoRoute(
             path: 'how-to-play',

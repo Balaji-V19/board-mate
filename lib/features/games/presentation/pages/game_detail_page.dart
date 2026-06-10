@@ -120,7 +120,8 @@ class _Hero extends StatelessWidget {
   }
 }
 
-/// Full-bleed cover photo with the accent colour as a placeholder/background.
+/// Full-bleed cover photo. Tapping it opens the static image viewer so the
+/// user can see the whole picture without the page chrome on top.
 class _PhotoHero extends StatelessWidget {
   const _PhotoHero({required this.game, required this.accent});
   final BoardGameEntity game;
@@ -128,15 +129,21 @@ class _PhotoHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: accent.withValues(alpha: 0.16),
-      child: CachedNetworkImage(
-        imageUrl: game.imageUrl,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-        placeholder: (_, __) => const SizedBox.shrink(),
-        errorWidget: (_, __, ___) => _IconHero(game: game, accent: accent),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => context.push(
+        '/image-viewer?url=${Uri.encodeQueryComponent(game.imageUrl)}',
+      ),
+      child: Container(
+        color: accent.withValues(alpha: 0.16),
+        child: CachedNetworkImage(
+          imageUrl: game.imageUrl,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          placeholder: (_, __) => const SizedBox.shrink(),
+          errorWidget: (_, __, ___) => _IconHero(game: game, accent: accent),
+        ),
       ),
     );
   }

@@ -73,6 +73,7 @@ class StepElement extends Equatable {
     required this.name,
     this.iconKey,
     this.photoKey,
+    this.url,
     required this.message,
     this.moodKey,
   });
@@ -87,6 +88,10 @@ class StepElement extends Equatable {
   /// Concept key from the photo registry in `BmConceptImage`.
   final String? photoKey;
 
+  /// Direct image URL (e.g. uploaded to Firebase Storage from the admin).
+  /// Beats [photoKey] / [iconKey] when set.
+  final String? url;
+
   /// What the mascot says when this element is tapped.
   final String message;
 
@@ -95,7 +100,7 @@ class StepElement extends Equatable {
   final String? moodKey;
 
   @override
-  List<Object?> get props => [name, iconKey, photoKey, message, moodKey];
+  List<Object?> get props => [name, iconKey, photoKey, url, message, moodKey];
 }
 
 class NumberedRuleEntity extends Equatable {

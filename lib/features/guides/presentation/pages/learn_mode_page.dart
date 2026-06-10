@@ -28,6 +28,10 @@ class LearnModePage extends ConsumerWidget {
       loaded: (g) => g.turnFlow.isNotEmpty,
       orElse: () => false,
     );
+    final hasComponents = guide.maybeWhen(
+      loaded: (g) => g.components.isNotEmpty,
+      orElse: () => false,
+    );
     final progress = ref.watch(progressNotifierProvider).forGame(gameId);
 
     return Scaffold(
@@ -70,6 +74,19 @@ class LearnModePage extends ConsumerWidget {
                   progress?.isCompleted(GuideSection.setup) ?? false,
               onTap: () => context.push('/game/$gameId/setup'),
             ),
+            if (hasComponents) ...[
+              SizedBox(height: 12.h),
+              _ModeCard(
+                icon: Icons.inventory_2_rounded,
+                iconColor: AppColors.primaryGold,
+                tint: const Color(0xFFF6E9CA),
+                title: "What's in the Box",
+                subtitle: 'Walk through every component, one at a time',
+                duration: '3 min',
+                completed: false,
+                onTap: () => context.push('/game/$gameId/game-elements'),
+              ),
+            ],
             SizedBox(height: 12.h),
             _ModeCard(
               icon: Icons.menu_rounded,

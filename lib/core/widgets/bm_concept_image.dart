@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../config/constants/app_colors.dart';
 import '../../config/constants/app_spacing.dart';
@@ -163,14 +164,28 @@ class BmConceptImage extends StatelessWidget {
     final concept = _registry[image.iconKey?.toLowerCase()] ??
         const _Concept(Icons.casino_rounded, AppColors.primaryGold);
 
-    return Column(
-      children: [
-        Container(
+    final hasCaption = image.caption != null && image.caption!.isNotEmpty;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Reserve a little room for the caption row (text + spacer) so the
+        // image clamps to the remaining space when the parent constrains
+        // total height.
+        const captionReserve = 26.0;
+        final desired = size.h;
+        final imageHeight = constraints.hasBoundedHeight
+            ? (constraints.maxHeight -
+                    (hasCaption ? captionReserve : 0))
+                .clamp(0.0, desired)
+            : desired;
+
+        Widget imageBox = Container(
           width: double.infinity,
-          height: size.h,
+          height: imageHeight,
           decoration: BoxDecoration(
             color: concept.tint.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(AppSpacing.smallCardRadius),
+            borderRadius:
+                BorderRadius.circular(AppSpacing.smallCardRadius),
             border: Border.all(
               color: concept.tint.withValues(alpha: 0.20),
               width: 1,
@@ -181,26 +196,53 @@ class BmConceptImage extends StatelessWidget {
           child: resolvedUrl != null
               ? CachedNetworkImage(
                   imageUrl: resolvedUrl,
-                  fit: BoxFit.cover,
+                  // Show the whole image — never crop. Letterboxing falls
+                  // onto the container's tinted background.
+                  fit: BoxFit.contain,
                   width: double.infinity,
                   height: double.infinity,
                   placeholder: (_, __) => Icon(concept.icon,
                       color: concept.tint.withValues(alpha: 0.4),
                       size: 48.sp),
-                  errorWidget: (_, __, ___) =>
-                      Icon(concept.icon, color: concept.tint, size: 64.sp),
+                  errorWidget: (_, __, ___) => Icon(concept.icon,
+                      color: concept.tint, size: 64.sp),
                 )
               : Icon(concept.icon, color: concept.tint, size: 64.sp),
-        ),
-        if (image.caption != null && image.caption!.isNotEmpty) ...[
-          SizedBox(height: 8.h),
-          Text(
-            image.caption!,
-            style: AppTextStyle.helper(),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ],
+        );
+
+        // Tap-to-open full-screen viewer when there's a real image to show.
+        // Icon-only renderings stay inert — nothing to expand to.
+        if (resolvedUrl != null) {
+          imageBox = Material(
+            color: Colors.transparent,
+            borderRadius:
+                BorderRadius.circular(AppSpacing.smallCardRadius),
+            child: InkWell(
+              onTap: () => context.push(
+                '/image-viewer?url=${Uri.encodeQueryComponent(resolvedUrl)}',
+              ),
+              borderRadius:
+                  BorderRadius.circular(AppSpacing.smallCardRadius),
+              child: imageBox,
+            ),
+          );
+        }
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            imageBox,
+            if (hasCaption) ...[
+              SizedBox(height: 8.h),
+              Text(
+                image.caption!,
+                style: AppTextStyle.helper(),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
 }

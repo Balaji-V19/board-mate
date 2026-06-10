@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -20,9 +17,9 @@ import '../../../games/presentation/providers/games_notifier.dart';
 import '../../../games/presentation/providers/progress_notifier.dart';
 import '../../../mascot/domain/entities/mascot_mood.dart';
 import '../../../mascot/presentation/widgets/mascot_celebration.dart';
+import '../utils/mascot_mood.dart';
 import '../widgets/guide_tip_cards.dart';
 import '../widgets/mascot_speech_bubble.dart';
-import '../widgets/step_element_card.dart';
 
 class SetupGuidePage extends ConsumerStatefulWidget {
   const SetupGuidePage({super.key, required this.gameId});
@@ -36,11 +33,6 @@ class _SetupGuidePageState extends ConsumerState<SetupGuidePage> {
   int _step = 0;
   final Set<String> _checked = {};
 
-  /// The element the mascot is currently explaining. Null means the bubble
-  /// shows the step's default body text.
-  StepElement? _activeElement;
-  Timer? _resetTimer;
-
   @override
   void initState() {
     super.initState();
@@ -50,47 +42,6 @@ class _SetupGuidePageState extends ConsumerState<SetupGuidePage> {
           .read(progressNotifierProvider)
           .touch(widget.gameId, GuideSection.setup);
     });
-  }
-
-  void _onElementTap(StepElement element) {
-    HapticFeedback.lightImpact();
-    setState(() => _activeElement = element);
-    _resetTimer?.cancel();
-    _resetTimer = Timer(const Duration(seconds: 4), () {
-      if (!mounted) return;
-      setState(() => _activeElement = null);
-    });
-  }
-
-  void _resetMascot() {
-    _resetTimer?.cancel();
-    if (_activeElement != null) {
-      setState(() => _activeElement = null);
-    }
-  }
-
-  @override
-  void dispose() {
-    _resetTimer?.cancel();
-    super.dispose();
-  }
-
-  static MascotMood _moodFromKey(String? key) {
-    switch (key) {
-      case 'welcome':
-        return MascotMood.welcome;
-      case 'thinking':
-        return MascotMood.thinking;
-      case 'teaching':
-        return MascotMood.teaching;
-      case 'curious':
-        return MascotMood.curious;
-      case 'celebrating':
-        return MascotMood.celebrating;
-      case 'reading':
-      default:
-        return MascotMood.reading;
-    }
   }
 
   @override
@@ -146,11 +97,7 @@ class _SetupGuidePageState extends ConsumerState<SetupGuidePage> {
                     stepIndex: _step,
                     totalSteps: steps.length,
                     checked: _checked,
-                    activeElement: _activeElement,
-                    bubbleMood: _moodFromKey(
-                      _activeElement?.moodKey ?? 'reading',
-                    ),
-                    onElementTap: _onElementTap,
+                    bubbleMood: mascotMoodFromKey('reading'),
                     onCheck: (key, v) => setState(() {
                       if (v) {
                         _checked.add(key);
@@ -165,13 +112,11 @@ class _SetupGuidePageState extends ConsumerState<SetupGuidePage> {
                   isLast: _step == steps.length - 1,
                   onBack: () {
                     if (_step > 0) {
-                      _resetMascot();
                       setState(() => _step--);
                     }
                   },
                   onNext: () async {
                     if (_step < steps.length - 1) {
-                      _resetMascot();
                       setState(() => _step++);
                     } else {
                       await ref
@@ -266,9 +211,7 @@ class _StepView extends StatelessWidget {
     required this.stepIndex,
     required this.totalSteps,
     required this.checked,
-    required this.activeElement,
     required this.bubbleMood,
-    required this.onElementTap,
     required this.onCheck,
   });
 
@@ -276,16 +219,16 @@ class _StepView extends StatelessWidget {
   final int stepIndex;
   final int totalSteps;
   final Set<String> checked;
-  final StepElement? activeElement;
   final MascotMood bubbleMood;
-  final ValueChanged<StepElement> onElementTap;
   final void Function(String key, bool checked) onCheck;
 
   @override
   Widget build(BuildContext context) {
     final overallPct = (stepIndex + 1) / totalSteps;
     final overallPctLabel = '${(overallPct * 100).round()}%';
-    final bubbleMessage = activeElement?.message ?? step.body;
+    final bubbleMessage = step.body;
+    final tip = step.tip?.trim();
+    final warning = step.warning?.trim();
 
     return ListView(
       padding: EdgeInsets.fromLTRB(
@@ -324,35 +267,14 @@ class _StepView extends StatelessWidget {
 
         // ─── Mascot + speech bubble (typewriter-driven) ──────────────────
         // The bubble is the *only* place the step's body lives now — no
-        // duplicate paragraph below. Tapping an element swaps the bubble
-        // text to that element's message; the typewriter restarts.
+        // duplicate paragraph below. Game-piece callouts live on the
+        // dedicated "Understand game elements" screen.
         MascotSpeechBubble(
           mood: bubbleMood,
           message: bubbleMessage,
           mascotSize: 170,
         ),
         SizedBox(height: 16.h),
-
-        // ─── Interactive element strip ───────────────────────────────────
-        if (step.elements.isNotEmpty) ...[
-          SizedBox(
-            height: 124.h,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: step.elements.length,
-              separatorBuilder: (_, __) => SizedBox(width: 10.w),
-              itemBuilder: (_, i) {
-                final e = step.elements[i];
-                return StepElementCard(
-                  element: e,
-                  selected: identical(activeElement, e),
-                  onTap: () => onElementTap(e),
-                );
-              },
-            ),
-          ),
-          SizedBox(height: 22.h),
-        ],
 
         // ─── Supporting illustration ─────────────────────────────────────
         // The image is taller now (180h) so the natural ~2:1 aspect ratio
@@ -368,13 +290,13 @@ class _StepView extends StatelessWidget {
         ],
 
         // ─── Pro tip + Watch out ─ shared inline-callout styling ─────────
-        if (step.tip != null) ...[
-          ProTipCard(tip: step.tip!),
+        if (tip != null && tip.isNotEmpty) ...[
+          ProTipCard(tip: tip),
           SizedBox(height: 18.h),
         ],
 
-        if (step.warning != null) ...[
-          WatchOutCard(body: step.warning!),
+        if (warning != null && warning.isNotEmpty) ...[
+          WatchOutCard(body: warning),
           SizedBox(height: 18.h),
         ],
 
