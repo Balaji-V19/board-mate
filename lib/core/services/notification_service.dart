@@ -158,6 +158,18 @@ class NotificationService {
   /// this once after sign-in (or earlier if you'd rather ask up front).
   Future<bool> requestPermission() async {
     try {
+      if (Platform.isAndroid) {
+        final android = _local
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>();
+        final granted =
+            await android?.requestNotificationsPermission() ?? true;
+        if (granted) {
+          await _refreshToken();
+        }
+        return granted;
+      }
+
       final settings = await _fcm.requestPermission(
         alert: true,
         badge: true,
@@ -178,6 +190,13 @@ class NotificationService {
   }
 
   Future<bool> _hasNotificationPermission() async {
+    if (Platform.isAndroid) {
+      final android = _local
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+      return await android?.areNotificationsEnabled() ?? true;
+    }
+
     final settings = await _fcm.getNotificationSettings();
     return settings.authorizationStatus == AuthorizationStatus.authorized ||
         settings.authorizationStatus == AuthorizationStatus.provisional;
