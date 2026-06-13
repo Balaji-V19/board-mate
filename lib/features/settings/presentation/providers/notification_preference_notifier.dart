@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,6 +32,9 @@ class NotificationPreferenceNotifier extends ChangeNotifier {
     }
     _loaded = true;
     notifyListeners();
+    if (_enabled) {
+      unawaited(NotificationService.instance.syncIfEnabled(true));
+    }
   }
 
   Future<void> setEnabled(bool value) async {

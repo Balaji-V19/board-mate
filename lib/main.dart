@@ -24,7 +24,7 @@ Future<void> main() async {
   }
   await initializeDependencies();
   // Fire-and-forget — never block app start on notification plumbing.
-  unawaited(NotificationService.instance.init());
+  unawaited(NotificationService.instance.bootstrap());
   runApp(const ProviderScope(child: BoardMateApp()));
 }
 

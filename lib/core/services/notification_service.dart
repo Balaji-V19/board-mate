@@ -5,9 +5,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../config/constants/api_constants.dart';
 
@@ -51,6 +53,10 @@ class NotificationService {
     description: 'Reminders, new games, and updates from BoardMate.',
     importance: Importance.high,
   );
+
+  static const _iosPushChannel = MethodChannel('boardmate/ios_push');
+
+  static const _deviceIdPrefsKey = 'bm_device_id_v1';
 
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _local =
@@ -129,6 +135,19 @@ class NotificationService {
     }
   }
 
+  static const _notificationsEnabledPrefsKey = 'notifications_enabled_v1';
+
+  /// Called once from `main()` — initializes listeners and re-registers the
+  /// device token when the user already opted in to notifications.
+  Future<void> bootstrap() async {
+    await init();
+    final prefs = await SharedPreferences.getInstance();
+    final enabled = prefs.getBool(_notificationsEnabledPrefsKey) ?? true;
+    if (enabled) {
+      await syncIfEnabled(true);
+    }
+  }
+
   /// Lets the app pass the GoRouter in once it's constructed so tap-to-open
   /// can navigate. Idempotent.
   void attachRouter(GoRouter router) {
@@ -158,12 +177,52 @@ class NotificationService {
     }
   }
 
+  Future<bool> _hasNotificationPermission() async {
+    final settings = await _fcm.getNotificationSettings();
+    return settings.authorizationStatus == AuthorizationStatus.authorized ||
+        settings.authorizationStatus == AuthorizationStatus.provisional;
+  }
+
+  /// On iOS, FCM refuses to return a token until APNs has delivered a device
+  /// token. That callback is async, so poll briefly instead of failing on the
+  /// first `getToken()` call.
+  Future<String?> _waitForApnsToken({
+    Duration timeout = const Duration(seconds: 15),
+    Duration interval = const Duration(milliseconds: 500),
+  }) async {
+    if (!Platform.isIOS) return null;
+
+    final deadline = DateTime.now().add(timeout);
+    while (DateTime.now().isBefore(deadline)) {
+      final apnsToken = await _fcm.getAPNSToken();
+      if (apnsToken != null) return apnsToken;
+      await Future<void>.delayed(interval);
+    }
+    return null;
+  }
+
   Future<void> _refreshToken() async {
     try {
+      if (!await _hasNotificationPermission()) return;
+
       if (Platform.isIOS) {
-        // APNs token has to be available before FCM will hand back a token.
-        await _fcm.getAPNSToken();
+        // Info.plist disables FCM auto-init; opt in once the user has granted
+        // permission so token registration can proceed.
+        await _fcm.setAutoInitEnabled(true);
+        await _registerForRemoteNotifications();
+
+        final apnsToken = await _waitForApnsToken();
+        if (apnsToken == null) {
+          if (kDebugMode) {
+            debugPrint(
+              'APNs token not ready yet — FCM token will arrive via '
+              'onTokenRefresh when APNs registration completes.',
+            );
+          }
+          return;
+        }
       }
+
       final token = await _fcm.getToken();
       _cachedToken = token;
       if (token != null) {
@@ -174,6 +233,17 @@ class NotificationService {
     }
   }
 
+  Future<void> _registerForRemoteNotifications() async {
+    if (!Platform.isIOS) return;
+    try {
+      await _iosPushChannel.invokeMethod<void>('registerForRemoteNotifications');
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('registerForRemoteNotifications failed: $e');
+      }
+    }
+  }
+
   Future<void> _onTokenChanged(String token) async {
     _cachedToken = token;
     await _persistToken(token);
@@ -181,6 +251,7 @@ class NotificationService {
 
   Future<void> _onAuthChanged(User? user) async {
     if (user == null) return;
+    if (!await _hasNotificationPermission()) return;
     if (_cachedToken == null) {
       await _refreshToken();
     } else {
@@ -188,26 +259,37 @@ class NotificationService {
     }
   }
 
-  /// Stores the device's FCM token under
-  /// `users/{uid}/fcmTokens/{tokenId}` so a backend (or Cloud Function)
-  /// can fan-out push messages to all of a user's devices.
+  /// Stores the device's FCM token under `users/{uid}/fcmTokens/{token}`.
   Future<void> _persistToken(String token) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
     try {
+      final deviceId = await _deviceId();
       await FirebaseFirestore.instance
           .collection(FirestoreCollections.users)
           .doc(user.uid)
-          .collection('fcmTokens')
+          .collection(FirestoreCollections.fcmTokens)
           .doc(token)
           .set(<String, dynamic>{
         'token': token,
+        'deviceId': deviceId,
         'platform': Platform.isIOS ? 'ios' : 'android',
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
     } catch (e) {
       if (kDebugMode) debugPrint('persistToken failed: $e');
     }
+  }
+
+  Future<String> _deviceId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final existing = prefs.getString(_deviceIdPrefsKey);
+    if (existing != null && existing.isNotEmpty) return existing;
+
+    final generated =
+        '${Platform.operatingSystem}_${DateTime.now().millisecondsSinceEpoch}';
+    await prefs.setString(_deviceIdPrefsKey, generated);
+    return generated;
   }
 
   /// Remove the device's FCM token from Firestore. Call from the sign-out
@@ -220,12 +302,23 @@ class NotificationService {
       await FirebaseFirestore.instance
           .collection(FirestoreCollections.users)
           .doc(user.uid)
-          .collection('fcmTokens')
+          .collection(FirestoreCollections.fcmTokens)
           .doc(token)
           .delete();
     } catch (e) {
       if (kDebugMode) debugPrint('removeCurrentDeviceToken failed: $e');
     }
+  }
+
+  /// Re-register this device's token if notifications are enabled. Safe to
+  /// call on every cold start after preferences have loaded.
+  Future<void> syncIfEnabled(bool enabled) async {
+    if (!enabled) return;
+    if (!await _hasNotificationPermission()) {
+      await requestPermission();
+      return;
+    }
+    await _refreshToken();
   }
 
   /// Drive the in-app subscription toggle. When `false`, the device's FCM

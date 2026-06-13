@@ -11,4 +11,5 @@ class FirestoreCollections {
   static const String recents = 'recents';
   static const String requests = 'requests';
   static const String feedback = 'feedback';
+  static const String fcmTokens = 'fcmTokens';
 }

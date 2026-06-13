@@ -244,7 +244,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       FirestoreCollections.saved,
       FirestoreCollections.progress,
       FirestoreCollections.recents,
-      'fcmTokens',
+      FirestoreCollections.fcmTokens,
     ]) {
       try {
         await _purgeUserSubcollection(user.uid, sub);

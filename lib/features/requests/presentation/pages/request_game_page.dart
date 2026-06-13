@@ -82,8 +82,6 @@ class _RequestGamePageState extends ConsumerState<RequestGamePage> {
                   ? context.pop()
                   : context.go('/settings')),
               SizedBox(height: 18.h),
-              const _HeroIllustration(),
-              SizedBox(height: 22.h),
               Text(
                 "Can't find a game?",
                 style: AppTextStyle.largeTitle().copyWith(
@@ -91,7 +89,7 @@ class _RequestGamePageState extends ConsumerState<RequestGamePage> {
               ),
               SizedBox(height: 8.h),
               Text(
-                'Let us know which game you\'d like to learn next. We add new guides every week.',
+                'Tell us which game you\'d like to learn next. We add new guides every week.',
                 style: AppTextStyle.body(color: AppColors.textSecondary),
               ),
               SizedBox(height: 22.h),
@@ -205,75 +203,6 @@ class _RoundIconButton extends StatelessWidget {
           ),
           alignment: Alignment.center,
           child: Icon(icon, color: AppColors.secondaryNavy, size: 22.sp),
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Hero ────────────────────────────────────────────────────────────────
-
-class _HeroIllustration extends StatelessWidget {
-  const _HeroIllustration();
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20.r),
-      child: SizedBox(
-        height: 140.h,
-        width: double.infinity,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Positioned.fill(
-              child: ColoredBox(
-                color: AppColors.primaryGold.withValues(alpha: 0.16),
-              ),
-            ),
-            Positioned(
-              right: -30,
-              top: -20,
-              child: Container(
-                width: 140.w,
-                height: 140.w,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryGold.withValues(alpha: 0.18),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-            Positioned(
-              left: -40,
-              bottom: -30,
-              child: Container(
-                width: 130.w,
-                height: 130.w,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryGold.withValues(alpha: 0.14),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-            Container(
-              width: 64.w,
-              height: 64.w,
-              decoration: BoxDecoration(
-                color: AppColors.primaryGold,
-                borderRadius: BorderRadius.circular(16.r),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primaryGold.withValues(alpha: 0.35),
-                    blurRadius: 16,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              alignment: Alignment.center,
-              child: Icon(Icons.add_rounded,
-                  color: Colors.white, size: 32.sp),
-            ),
-          ],
         ),
       ),
     );
