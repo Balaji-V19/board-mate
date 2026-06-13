@@ -23,7 +23,6 @@ Future<void> main() async {
     }
   }
   await initializeDependencies();
-  // Fire-and-forget — never block app start on notification plumbing.
   unawaited(NotificationService.instance.bootstrap());
   runApp(const ProviderScope(child: BoardMateApp()));
 }
@@ -33,14 +32,17 @@ class BoardMateApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final mediaQuery = MediaQuery.of(context);
+    final size = mediaQuery.size;
+    final isTablet = size.shortestSide >= 600;
+    final designSize = isTablet ? size : const Size(393, 852);
+
     return ScreenUtilInit(
-      designSize: const Size(393, 852),
+      designSize: designSize,
       minTextAdapt: true,
+      splitScreenMode: true,
       builder: (_, __) {
         final router = ref.watch(routerProvider);
-        // Hand the router to the notification service so taps that include
-        // a `route` payload can deep-link into the app. Safe to call every
-        // build — `attachRouter` is idempotent.
         NotificationService.instance.attachRouter(router);
         return MaterialApp.router(
           title: 'BoardMate',

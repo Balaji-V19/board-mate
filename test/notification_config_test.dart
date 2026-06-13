@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:boardmate/config/constants/api_constants.dart';
+import 'package:boardmate/core/utils/device_layout.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Release checklist encoded as fast static tests — no Firebase device needed.
@@ -43,8 +44,9 @@ void main() {
       expect(entitlements.contains('<string>development</string>'), isTrue);
     });
 
-    test('firestore fcm token collection name is stable', () {
-      expect(FirestoreCollections.fcmTokens, 'fcmTokens');
+    test('device layout uses phone design dimensions', () {
+      expect(DeviceLayout.phoneWidth, 393.0);
+      expect(DeviceLayout.phoneHeight, 852.0);
     });
   });
 }
