@@ -14,9 +14,11 @@ class ProTipCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final normalizedTip = _normalizeCalloutText(tip);
+    if (normalizedTip == null) return const SizedBox.shrink();
     return _InlineCalloutCard(
       label: 'Pro tip',
-      body: tip,
+      body: normalizedTip,
       icon: Icons.tips_and_updates_rounded,
       accent: AppColors.primaryGold,
     );
@@ -33,13 +35,23 @@ class WatchOutCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final normalizedBody = _normalizeCalloutText(body);
+    if (normalizedBody == null) return const SizedBox.shrink();
     return _InlineCalloutCard(
       label: 'Watch out',
-      body: body,
+      body: normalizedBody,
       icon: Icons.report_problem_rounded,
       accent: AppColors.warning,
     );
   }
+}
+
+String? _normalizeCalloutText(String? raw) {
+  final text = raw?.trim();
+  if (text == null || text.isEmpty) return null;
+  final lowered = text.toLowerCase();
+  if (lowered == 'null' || lowered == 'n/a' || lowered == 'na') return null;
+  return text;
 }
 
 class _InlineCalloutCard extends StatelessWidget {
